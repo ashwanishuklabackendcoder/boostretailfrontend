@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DemoUI</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/DemoUI.styles.css" asp-append-version="true" />
+
+    @* font awesome *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <!-- Font Awesome 6 (latest free version from CDN) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+
+    <style>
+
+    </style>
+
+</head>
+<body>
+
+    <header>
+        <div class="d-flex">
+
+            <!-- Sidebar / Toggle Button -->
+            <div id="toggleWrapper" class="bg-primary text-light d-flex align-items-center justify-content-center"
+                 style="width:75px; height: 56px; cursor:pointer;" onclick="toggleSidebar()">
+
+                <!-- height matches navbar height -->
+                <a class="navbar-brand text-light m-0 p-0" href="#">
+                    <i id="toggleIcon" class="fa fa-bars"></i>
+                </a>
+            </div>
+
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-sm navbar-light bg-dark p-0 flex-grow-1">
+                <div class="container-fluid p-0">
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">
+                                    Super Admin
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container-fluid p-0 m-0">
+        <div class="d-flex">
+
+            <!-- Sidebar -->
+            <aside id="sidebar"
+                   class="bg-primary text-light vh-100 d-flex flex-column align-items-center position-relative"
+                   style="width:75px; overflow:hidden; transition: all 0.3s;">
+
+                <!-- Dashboard -->
+                <a asp-controller="Home" asp-action="Index"
+                   class="text-light my-3"
+                   title="Dashboard">
+                    <i class="fa-solid fa-house fa-lg"></i>
+                </a>
+
+                <!-- SIM Icon -->
+                <div class="position-relative my-3">
+                    <a href="javascript:void(0)"
+                       class="text-light d-block"
+                       id="simMenuBtn"
+                       title="SIM">
+                        <i class="fa-solid fa-database fa-lg"></i>
+                    </a>
+
+                    <!-- SIM Flyout Submenu -->
+                    <div id="simSubMenu"
+                         class="bg-white text-dark shadow position-absolute start-100 top-0 p-3 rounded"
+                         style="min-width:260px; display:none; z-index:9999;">
+
+                        <h6 class="fw-bold mb-3">SIM</h6>
+
+                        <ul class="list-unstyled m-0">
+                            <!-- Supplier Feeds -->
+                            <li class="mb-2">
+                                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#supplierSub">
+                                    <span>Supplier Feeds</span>
+                                    <i class="fa-solid fa-chevron-down small"></i>
+                                </div>
+                                <ul id="supplierSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
+                                    <li><a asp-controller="Supplier" asp-action="Feeds" class="d-block text-dark py-1">Maintain Supplier Feeds</a></li>
+                                    
+                                </ul>
+                            </li>
+
+                            <!-- Categorization -->
+                            <li class="mb-2">
+                                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#categorySub">
+                                    <span>Categorization</span>
+                                    <i class="fa-solid fa-chevron-down small"></i>
+                                </div>
+                                <ul id="categorySub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
+                                    <li><a asp-controller="Category" asp-action="MainTainCategory" class="d-block text-dark py-1">Maintain Categories</a></li>
+                                    <li><a asp-controller="Category" asp-action="MainLookupTabels" class="d-block text-dark py-1">Manintain Lookup Tabels</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Sim Products -->
+                            <li class="mb-2">
+                                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#productSub">
+                                    <span>Sim Products</span>
+                                    <i class="fa-solid fa-chevron-down small"></i>
+                                </div>
+                                <ul id="productSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
+                                    <li><a asp-controller="SimProducts" asp-action="Index" class="d-block text-dark py-1">Maintain SIM Products</a></li>
+                             
+                                </ul>
+                            </li>
+
+                            <!-- Incorrect Data -->
+                            <li>
+                                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#incorrectSub">
+                                    <span>Incorrect Data</span>
+                                    <i class="fa-solid fa-chevron-down small"></i>
+                                </div>
+                                <ul id="incorrectSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
+                                    <li><a asp-controller="IncorrectData" asp-action="Index" class="d-block text-dark py-1">Misshing Categories</a></li>
+                                    <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Visual Category Checker</a></li>
+                                    <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Confliciting Categories</a></li>
+                                    <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Missing Product Data</a></li>
+                                    <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Missing Images</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Users -->
+                <a href="#" class="text-light my-3" title="Users">
+                    <i class="fa-solid fa-users fa-lg"></i>
+                </a>
+
+                <!-- Setup -->
+                <a href="#" class="text-light my-3" title="Setup">
+                    <i class="fa-solid fa-gear fa-lg"></i>
+                </a>
+            </aside>
+
+            <!-- Main Content -->
+            <main role="main" class="flex-grow-1 p-4">
+                @RenderBody()
+            </main>
+
+        </div>
+    </div>
+
+    <script>
+        const simBtn = document.getElementById("simMenuBtn");
+        const simMenu = document.getElementById("simSubMenu");
+
+        // Show/hide the SIM flyout
+        simBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            simMenu.style.display = simMenu.style.display === "block" ? "none" : "block";
+        });
+
+        // Hide SIM menu on outside click
+        document.addEventListener("click", (e) => {
+            if (!simMenu.contains(e.target) && e.target !== simBtn) {
+                simMenu.style.display = "none";
+            }
+        });
+
+        // Submenu expand/collapse
+        document.querySelectorAll(".submenu-header").forEach(header => {
+            header.addEventListener("click", () => {
+                const targetId = header.getAttribute("data-target");
+                const submenu = document.querySelector(targetId);
+                const icon = header.querySelector("i");
+
+                // Toggle submenu
+                if (submenu.style.display === "none") {
+                    submenu.style.display = "block";
+                    icon.classList.remove("fa-chevron-down");
+                    icon.classList.add("fa-chevron-up");
+                } else {
+                    submenu.style.display = "none";
+                    icon.classList.remove("fa-chevron-up");
+                    icon.classList.add("fa-chevron-down");
+                }
+            });
+        });
+    </script>
+
+    <script>
+
+        function toggleSidebar() {
+
+            const sidebar = document.getElementById("sidebar");
+            const icon = document.getElementById("toggleIcon");
+            const wrapper = document.getElementById("toggleWrapper");
+
+            if (sidebar.style.width === "0px" || sidebar.style.width === "") {
+
+                sidebar.style.width = "75px"; // expand
+                sidebar.style.overflow = "visible";
+
+                wrapper.classList.remove("bg-primary");
+                wrapper.classList.add("bg-dark");
+
+                icon.classList.remove("fa-bars");
+                icon.classList.add("fa-arrow-left");
+
+            } else {
+
+                sidebar.style.width = "0"; // collapse
+                sidebar.style.overflow = "hidden";
+
+                wrapper.classList.remove("bg-dark");
+                wrapper.classList.add("bg-primary");
+
+                icon.classList.remove("fa-arrow-left");
+                icon.classList.add("fa-bars");
+
+            }
+        }
+
+    </script>
+
+  
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

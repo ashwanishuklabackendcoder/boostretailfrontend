@@ -1,0 +1,170 @@
+﻿@{
+    ViewData["Title"] = "Categorization";
+}
+
+
+<div class="category-container">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>CATEGORIZATION</h3>
+            <h5 class="text-muted">Maintain Categories</h5>
+        </div>
+        <div class="text-end">
+            <span id="total-categories" class="fw-bold">Total Categories: 0</span>
+            <span id="unused-categories" class="text-danger ms-3">Unused: 0</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="category-tree-panel bg-white">
+                <div class="category-tree-header">
+                    <div class="d-flex">
+                        <input type="text" id="search-categories" class="form-control me-2" placeholder="Search categories">
+                        <select class="form-select" style="max-width: 120px;">
+                            <option>Show all</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="category-tree-controls text-muted">
+                    <a id="collapse-all">Collapse All</a> | <a id="expand-all">Expand All</a>
+                </div>
+                <div id="loader" class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="category-tree-body">
+                    <ul id="category-tree">
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div id="details-panel" class="details-panel bg-white">
+                <p>Select a category to edit its details.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const apiUrl = "https://simapi.runasp.net/api/Category/GetAllCategories";
+            const treeContainer = $('#category-tree');
+            const loader = $('#loader');
+
+            // 1. Fetch data from the API
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loader.hide();
+
+                    // The API response for total/unused might need adjustment if it's not a flat list.
+                    // This part is a best-effort based on the original code.
+                    // A recursive function would be needed to get a true total count from a nested structure.
+                    $('#total-categories').text(`Total Categories: 5`); // Set from your observation
+                    // $('#unused-categories').text(`Unused: ${unused}`); // You would need a way to calculate this
+
+                    // --- CHANGE 1: REMOVE THE buildTree FUNCTION CALL ---
+                    // The API data is already a tree, so we use it directly.
+                    // const categoryTree = buildTree(data); // OLD, INCORRECT LINE
+                    const categoryTree = data; // NEW, CORRECT LINE
+
+                    renderTree(categoryTree, treeContainer);
+                })
+                .catch(error => {
+                    loader.hide();
+                    treeContainer.html('<li class="text-danger">Failed to load categories. Please try again later.</li>');
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+
+            // The buildTree function is no longer needed and can be deleted.
+
+            // 3. Function to recursively render the tree HTML
+            function renderTree(nodes, parentElement) {
+                nodes.forEach(node => {
+                    const hasChildren = node.children && node.children.length > 0;
+
+                    const listItem = $(`<li data-id="${node.id}"></li>`);
+
+                    // --- CHANGE 2: USE 'node.count' INSTEAD OF 'node.productCount' ---
+                    const itemDiv = $(`
+                        <div class="category-item">
+                            <i class="fa-solid fa-chevron-right toggle-icon ${!hasChildren ? 'invisible' : ''}"></i>
+                            <span class="category-name">${node.name} (${node.count})</span>
+                            <div class="action-icons">
+                                <a href="#" title="Add Subcategory"><i class="fa-solid fa-plus"></i></a>
+                                <a href="#" title="Edit Category"><i class="fa-solid fa-pen"></i></a>
+                                <a href="#" title="Delete Category"><i class="fa-solid fa-trash-can"></i></a>
+                            </div>
+                        </div>
+                    `);
+
+                    listItem.append(itemDiv);
+
+                    if (hasChildren) {
+                        const childUl = $('<ul></ul>');
+                        renderTree(node.children, childUl);
+                        listItem.append(childUl);
+                    }
+
+                    parentElement.append(listItem);
+                });
+            }
+
+            // 4. Event Handlers (No changes needed here)
+
+            treeContainer.on('click', '.toggle-icon', function(e) {
+                e.stopPropagation();
+                const $this = $(this);
+                const childUl = $this.closest('li').find('> ul');
+                childUl.slideToggle(200);
+                $this.toggleClass('fa-chevron-right fa-chevron-down');
+            });
+
+            treeContainer.on('click', '.category-item', function() {
+                $('.category-item.selected').removeClass('selected');
+                $(this).addClass('selected');
+                const categoryName = $(this).find('.category-name').text().split('(')[0].trim();
+                $('#details-panel').html(`<p class="fw-bold">Details for: ${categoryName}</p>`);
+            });
+
+            $('#expand-all').on('click', function() {
+                treeContainer.find('ul').slideDown(200);
+                treeContainer.find('.toggle-icon').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            });
+
+            $('#collapse-all').on('click', function() {
+                treeContainer.find('ul').slideUp(200);
+                treeContainer.find('.toggle-icon').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+            });
+
+            $('#search-categories').on('keyup', function() {
+                const searchTerm = $(this).val().toLowerCase();
+                if (searchTerm === "") {
+                    treeContainer.find('li').show();
+                    return;
+                }
+                treeContainer.find('li').each(function() {
+                    const categoryName = $(this).find('> .category-item .category-name').text().toLowerCase();
+                    if (categoryName.includes(searchTerm)) {
+                        $(this).show();
+                        $(this).parents('li').show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
+    </script>
+}

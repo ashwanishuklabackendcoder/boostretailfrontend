@@ -1,0 +1,77 @@
+﻿@model IEnumerable<DemoUI.Models.SupplierFeed>
+
+@{
+    ViewData["Title"] = "Supplier Feeds";
+}
+
+<div class="container-fluid px-0">
+    <h4 class="fw-bold mb-2">SUPPLIER FEEDS</h4>
+    <p class="text-muted">Maintain Supplier Feeds</p>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0">Create supplier Feed</h6>
+        <button class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle supplier-table">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier</th>
+                    <th>Feed Name</th>
+                    <th>Feed Address</th>
+                    <th>API Key</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Active</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var isActiveRow = item.Id == 1 ? "active-row" : "";
+                    <tr class="@isActiveRow">
+                        <td>@item.Id</td>
+                        <td><input class="form-control form-control-sm" value="@item.Supplier" /></td>
+                        <td><input class="form-control form-control-sm" value="@item.FeedName" /></td>
+                        <td><input class="form-control form-control-sm" value="@item.FeedAddress" /></td>
+                        <td><input class="form-control form-control-sm" value="@item.ApiKey" /></td>
+                        <td><input class="form-control form-control-sm" value="@item.Username" /></td>
+                        <td><input class="form-control form-control-sm" value="@item.Password" /></td>
+                        <td class="text-center">
+                            <input class="form-check-input" type="checkbox" checked="@item.Active" />
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm text-danger"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <h6 class="fw-bold">Giant Main Feed Information</h6>
+        <div class="text-muted small">
+            <p><strong>Last Updated:</strong> 20/07/2025 13:45</p>
+            <p><strong>New Products:</strong> 27</p>
+            <p><strong>Uncategorised products:</strong> 5</p>
+            <p><strong>Category conflicts:</strong> 1</p>
+            <p><strong>Missing Key Data:</strong> 2</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // highlight selected row when clicked
+        document.querySelectorAll('.supplier-table tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                document.querySelectorAll('.supplier-table tbody tr').forEach(r => r.classList.remove('active-row'));
+                row.classList.add('active-row');
+            });
+        });
+    </script>
+}

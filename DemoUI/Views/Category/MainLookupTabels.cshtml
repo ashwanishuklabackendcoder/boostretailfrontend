@@ -1,0 +1,159 @@
+﻿@{
+    ViewData["Title"] = "Maintain Lookup Tables";
+}
+
+<style>
+    .lookup-tables-container {
+        font-family: Arial, sans-serif;
+    }
+
+    .table th {
+        font-weight: 600;
+        color: #555;
+    }
+
+        .table th.sortable {
+            cursor: pointer;
+        }
+
+    .table .action-icons a {
+        color: #6c757d;
+        text-decoration: none;
+        margin: 0 5px;
+        font-size: 1.1rem;
+    }
+
+        .table .action-icons a:hover {
+            color: #0d6efd;
+        }
+
+    .fab {
+        width: 56px;
+        height: 56px;
+        background-color: #0d6efd;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 1.5rem;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+        .fab:hover {
+            background-color: #0b5ed7;
+            color: white;
+        }
+</style>
+
+<div class="lookup-tables-container">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2>CATEGORIZATION</h2>
+            <h5 class="text-muted">Maintain Lookup Tables</h5>
+        </div>
+        <div class="text-end">
+            <span id="lookup-table-count" class="fw-bold">Lookup Tables: 0</span>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>Create Lookup Tables</h4>
+        <a href="#" class="fab" title="Create New Lookup Table">
+            <i class="fa-solid fa-plus"></i>
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="p-3 sortable">Table Name <i class="fa-solid fa-sort ms-1"></i></th>
+                        <th class="p-3">Supplier Feed</th>
+                        <th class="p-3 sortable">Columns <i class="fa-solid fa-sort ms-1"></i></th>
+                        <th class="p-3 sortable">Categorization <i class="fa-solid fa-sort ms-1"></i></th>
+                        <th class="p-3">Active</th>
+                        <th class="p-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="lookup-table-body">
+                    <tr>
+                        <td colspan="6" class="text-center p-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const apiUrl = "https://simapi.runasp.net/api/Category/GetCategoryLookups";
+            const tableBody = $('#lookup-table-body');
+
+            // Based on your design, we map supplier IDs to names.
+            // You might get this from another API call in a real application.
+            const supplierMap = {
+                3: 'Giant',
+                4: 'Haibike',
+                5: 'Lapierre'
+            };
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Clear the loading spinner
+                    tableBody.empty();
+
+                    // Update the count in the header
+                    $('#lookup-table-count').text(`Lookup Tables: ${data.length}`);
+
+                    if (data.length === 0) {
+                        tableBody.html('<tr><td colspan="6" class="text-center p-4">No lookup tables found.</td></tr>');
+                        return;
+                    }
+
+                    // Loop through the data and build table rows
+                    data.forEach(item => {
+                        const supplierName = supplierMap[item.supplierFeed] || 'Unknown';
+                        const isChecked = item.isActive ? 'checked' : '';
+
+                        const rowHtml = `
+                            <tr data-id="${item.id}">
+                                <td class="p-3">${item.tableName}</td>
+                                <td class="p-3">${supplierName}</td>
+                                <td class="p-3">${item.supplierColumns}</td>
+                                <td class="p-3">${item.categorisation}</td>
+                                <td class="p-3">
+                                    <input class="form-check-input" type="checkbox" ${isChecked} disabled>
+                                </td>
+                                <td class="p-3 action-icons">
+                                    <a href="#" title="Edit"><i class="fa-solid fa-pen"></i></a>
+                                    <a href="#" title="Delete"><i class="fa-solid fa-trash-can"></i></a>
+                                </td>
+                            </tr>
+                        `;
+                        tableBody.append(rowHtml);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching lookup tables:', error);
+                    tableBody.html('<tr><td colspan="6" class="text-center p-4 text-danger">Failed to load data. Please try again later.</td></tr>');
+                });
+        });
+    </script>
+}

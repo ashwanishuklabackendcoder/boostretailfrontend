@@ -2,71 +2,16 @@
     ViewData["Title"] = "Maintain Lookup Tables";
 }
 
-<style>
-    .lookup-tables-container {
-        font-family: Arial, sans-serif;
-    }
-
-    .table th {
-        font-weight: 600;
-        color: #555;
-    }
-
-        .table th.sortable {
-            cursor: pointer;
-        }
-
-    .table .action-icons a {
-        color: #6c757d;
-        text-decoration: none;
-        margin: 0 5px;
-        font-size: 1.1rem;
-    }
-
-        .table .action-icons a:hover {
-            color: #0d6efd;
-        }
-
-    .fab {
-        width: 56px;
-        height: 56px;
-        background-color: #0d6efd;
-        border-radius: 50%;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.25);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-size: 1.5rem;
-        text-decoration: none;
-        transition: background-color 0.3s;
-    }
-
-        .fab:hover {
-            background-color: #0b5ed7;
-            color: white;
-        }
-</style>
-
-<div class="lookup-tables-container">
+<div class="container-fluid px-0">
+    <h4 class="fw-bold mb-2">CATEGORIZATION</h4>
+    <p class="text-muted">Maintain Lookup Tables</p>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h2>CATEGORIZATION</h2>
-            <h5 class="text-muted">Maintain Lookup Tables</h5>
-        </div>
-        <div class="text-end">
-            <span id="lookup-table-count" class="fw-bold">Lookup Tables: 0</span>
-        </div>
+        <h6 class="mb-0">Create Lookup Tables</h6>
+        <button class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button>
     </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4>Create Lookup Tables</h4>
-        <a href="#" class="fab" title="Create New Lookup Table">
-            <i class="fa-solid fa-plus"></i>
-        </a>
-    </div>
-
+</div>
+<div class="lookup-tables-container">
     <div class="card">
         <div class="card-body p-0">
             <table class="table table-hover align-middle mb-0">

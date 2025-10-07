@@ -50,7 +50,287 @@
     </div>
 
 </div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const apiBaseUrl = "https://simapi.runasp.net/api/Category";
+            const getApiUrl = `${apiBaseUrl}/GetAllCategories`;
+            const treeContainer = $('#category-tree');
+            const loader = $('#loader');
+            const detailsPanel = $('#details-panel');
 
+            // ========================
+            // 1. FETCH CATEGORY TREE
+            // ========================
+            loadTree();
+
+            function loadTree() {
+                loader.show();
+                fetch(getApiUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        loader.hide();
+                        treeContainer.empty();
+                        renderTree(data, treeContainer);
+                    })
+                    .catch(err => {
+                        loader.hide();
+                        console.error(err);
+                        treeContainer.html('<li class="text-danger">Failed to load categories.</li>');
+                    });
+            }
+
+            // ========================
+            // 2. RENDER TREE FUNCTION
+            // ========================
+            function renderTree(nodes, parentElement) {
+                nodes.forEach(node => {
+                    const hasChildren = node.children && node.children.length > 0;
+                    const listItem = $(`<li data-id="${node.id}" data-name="${node.name}"></li>`);
+
+                    const itemDiv = $(`
+                        <div class="category-item">
+                            <i class="fa-solid fa-chevron-right toggle-icon ${!hasChildren ? 'invisible' : ''}"></i>
+                            <span class="category-name">${node.name} (${node.count})</span>
+                            <div class="action-icons">
+                                <a href="#" class="add-sub" title="Add Subcategory"><i class="fa-solid fa-plus"></i></a>
+                                <a href="#" class="edit-cat" title="Edit Category"><i class="fa-solid fa-pen"></i></a>
+                                <a href="#" class="del-cat" title="Delete Category"><i class="fa-solid fa-trash-can"></i></a>
+                            </div>
+                        </div>
+                    `);
+
+                    listItem.append(itemDiv);
+
+                    if (hasChildren) {
+                        const childUl = $('<ul></ul>');
+                        renderTree(node.children, childUl);
+                        listItem.append(childUl);
+                    }
+
+                    parentElement.append(listItem);
+                });
+            }
+
+            // ========================
+            // 3. TREE TOGGLE
+            // ========================
+            treeContainer.on('click', '.toggle-icon', function (e) {
+                e.stopPropagation();
+                const $this = $(this);
+                const childUl = $this.closest('li').find('> ul');
+                childUl.slideToggle(200);
+                $this.toggleClass('fa-chevron-right fa-chevron-down');
+            });
+
+            // ========================
+            // 4. SELECT CATEGORY
+            // ========================
+            treeContainer.on('click', '.category-item', function () {
+                $('.category-item.selected').removeClass('selected');
+                $(this).addClass('selected');
+
+                const li = $(this).closest('li');
+                const id = li.data('id');
+                const name = li.data('name');
+
+                detailsPanel.html(`
+                    <div>
+                        <h5 class="fw-bold mb-3">Category Details</h5>
+                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>ID:</strong> ${id}</p>
+                        <p>Select an action from the left panel icons to modify this category.</p>
+                    </div>
+                `);
+            });
+
+            // ========================
+            // 5. ADD SUBCATEGORY FORM
+            // ========================
+            treeContainer.on('click', '.add-sub', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const parentLi = $(this).closest('li');
+                const parentId = parentLi.data('id');
+                const parentName = parentLi.data('name');
+
+                detailsPanel.html(`
+                    <div class="p-3">
+                        <h5 class="fw-bold mb-3">Add Subcategory under "${parentName}"</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Subcategory Name</label>
+                            <input type="text" id="subName" class="form-control" placeholder="Enter subcategory name">
+                        </div>
+                        <button id="btnSaveSub" class="btn btn-primary">Save</button>
+                        <button id="btnCancel" class="btn btn-secondary ms-2">Cancel</button>
+                    </div>
+                `);
+
+                $('#btnCancel').on('click', function () {
+                    detailsPanel.html(`<p>Select a category to edit its details.</p>`);
+                });
+
+                $('#btnSaveSub').on('click', function () {
+                    const subName = $('#subName').val().trim();
+                    if (!subName) {
+                        alert('Please enter a name.');
+                        return;
+                    }
+
+                    const payload = { id: 0, name: subName, parentId: parentId };
+
+                    fetch(apiBaseUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error("Failed to add subcategory.");
+                            return res.json();
+                        })
+                        .then(() => {
+                            detailsPanel.html(`<p class="text-success">Subcategory added successfully!</p>`);
+                            loadTree();
+                        })
+                        .catch(err => detailsPanel.html(`<p class="text-danger">${err.message}</p>`));
+                });
+            });
+
+            // ========================
+            // 6. EDIT CATEGORY FORM
+            // ========================
+            treeContainer.on('click', '.edit-cat', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const li = $(this).closest('li');
+            const id = li.data('id');
+            const oldName = li.find('.category-name').text().split('(')[0].trim();
+            const parentId = li.closest('ul').closest('li').data('id') || 0; // keep existing parent
+
+            detailsPanel.html(`
+                <div class="p-3">
+                    <h5 class="fw-bold mb-3">Edit Category</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Category Name</label>
+                        <input type="text" id="editName" class="form-control" value="${oldName}">
+                    </div>
+                    <button id="btnUpdateCat" class="btn btn-success">Update</button>
+                    <button id="btnCancel" class="btn btn-secondary ms-2">Cancel</button>
+                </div>
+            `);
+
+            $('#btnCancel').on('click', function () {
+                detailsPanel.html(`<p>Select a category to edit its details.</p>`);
+            });
+
+            $('#btnUpdateCat').on('click', function () {
+                const newName = $('#editName').val().trim();
+                if (!newName) {
+                    alert("Please enter a category name.");
+                    return;
+                }
+
+                const payload = { id: id, name: newName, parentId: parentId };
+
+                fetch(`https://simapi.runasp.net/api/Category/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Failed to update category.");
+                        return res.json();
+                    })
+                    .then(() => {
+                        detailsPanel.html(`<p class="text-success">Category updated successfully!</p>`);
+                        loadTree();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        detailsPanel.html(`<p class="text-danger">${err.message}</p>`);
+                    });
+            });
+        });
+
+            // ========================
+            // 7. DELETE CATEGORY FORM
+            // ========================
+            treeContainer.on('click', '.del-cat', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const li = $(this).closest('li');
+                const id = li.data('id');
+                const name = li.data('name');
+
+                detailsPanel.html(`
+                    <div class="p-3">
+                        <h5 class="text-danger mb-3">Delete Category</h5>
+                        <p>Are you sure you want to delete <strong>${name}</strong> (ID: ${id})?</p>
+                        <button id="btnConfirmDelete" class="btn btn-danger">Yes, Delete</button>
+                        <button id="btnCancel" class="btn btn-secondary ms-2">Cancel</button>
+                    </div>
+                `);
+
+                $('#btnCancel').on('click', function () {
+                    detailsPanel.html(`<p>Select a category to edit its details.</p>`);
+                });
+
+                $('#btnConfirmDelete').on('click', function () {
+                    fetch(`${apiBaseUrl}/${id}`, {
+                        method: "DELETE"
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error("Failed to delete category.");
+                            detailsPanel.html(`<p class="text-success">Category deleted successfully!</p>`);
+                            loadTree();
+                        })
+                        .catch(err => detailsPanel.html(`<p class="text-danger">${err.message}</p>`));
+                });
+            });
+
+            // ========================
+            // 8. SEARCH FILTER
+            // ========================
+            $('#search-categories').on('keyup', function () {
+                const term = $(this).val().toLowerCase();
+                if (term === "") {
+                    treeContainer.find('li').show();
+                    return;
+                }
+                treeContainer.find('li').each(function () {
+                    const name = $(this).find('> .category-item .category-name').text().toLowerCase();
+                    if (name.includes(term)) {
+                        $(this).show().parents('li').show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // ========================
+            // 9. EXPAND / COLLAPSE
+            // ========================
+            $('#expand-all').on('click', function () {
+                treeContainer.find('ul').slideDown(200);
+                treeContainer.find('.toggle-icon').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            });
+
+            $('#collapse-all').on('click', function () {
+                treeContainer.find('ul').slideUp(200);
+                treeContainer.find('.toggle-icon').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+            });
+        });
+    </script>
+}
+
+
+
+
+
+@* 
 @section Scripts {
     <script>
         $(document).ready(function () {
@@ -167,4 +447,4 @@
             });
         });
     </script>
-}
+} *@

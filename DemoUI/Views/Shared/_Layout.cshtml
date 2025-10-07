@@ -194,40 +194,48 @@
             });
         });
     </script>
-
     <script>
-
-        function toggleSidebar() {
-
+        document.addEventListener("DOMContentLoaded", function () {
             const sidebar = document.getElementById("sidebar");
             const icon = document.getElementById("toggleIcon");
             const wrapper = document.getElementById("toggleWrapper");
 
-            if (sidebar.style.width === "0px" || sidebar.style.width === "") {
+            // --- Set initial state: Sidebar is open ---
+            sidebar.style.width = "75px";
+            sidebar.style.overflow = "visible";
+            icon.classList.remove("fa-bars");
+            icon.classList.add("fa-arrow-left");
+            wrapper.classList.remove("bg-primary");
+            wrapper.classList.add("bg-dark");
 
-                sidebar.style.width = "75px"; // expand
-                sidebar.style.overflow = "visible";
+            // --- Prevent body horizontal scroll ---
+            document.body.style.overflowX = "hidden";
 
-                wrapper.classList.remove("bg-primary");
-                wrapper.classList.add("bg-dark");
+            // --- Toggle Sidebar ---
+            window.toggleSidebar = function () {
+                if (sidebar.style.width === "0px" || sidebar.style.width === "0") {
+                    // Expand
+                    sidebar.style.width = "75px";
+                    sidebar.style.overflow = "visible";
 
-                icon.classList.remove("fa-bars");
-                icon.classList.add("fa-arrow-left");
+                    icon.classList.remove("fa-bars");
+                    icon.classList.add("fa-arrow-left");
 
-            } else {
+                    wrapper.classList.remove("bg-primary");
+                    wrapper.classList.add("bg-dark");
+                } else {
+                    // Collapse
+                    sidebar.style.width = "0";
+                    sidebar.style.overflow = "hidden";
 
-                sidebar.style.width = "0"; // collapse
-                sidebar.style.overflow = "hidden";
+                    icon.classList.remove("fa-arrow-left");
+                    icon.classList.add("fa-bars");
 
-                wrapper.classList.remove("bg-dark");
-                wrapper.classList.add("bg-primary");
-
-                icon.classList.remove("fa-arrow-left");
-                icon.classList.add("fa-bars");
-
-            }
-        }
-
+                    wrapper.classList.remove("bg-dark");
+                    wrapper.classList.add("bg-primary");
+                }
+            };
+        });
     </script>
 
   

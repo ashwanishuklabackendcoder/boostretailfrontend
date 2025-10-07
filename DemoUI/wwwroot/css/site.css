@@ -1,8 +1,7 @@
 /* Base font size */
-html {
-  font-size: 14px;
-  position: relative;
-  min-height: 100%;
+
+html, body {
+    overflow-x: hidden !important;
 }
 
 @media (min-width: 768px) {

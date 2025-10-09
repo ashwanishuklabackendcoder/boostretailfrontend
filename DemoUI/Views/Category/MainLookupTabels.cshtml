@@ -543,102 +543,218 @@
                         });
                 }
             });
+            // ✅ CORRECTED to handle one operation type at a time (Add OR Edit)
+                $(document).on('click', '#btnSaveAllRules', function() {
+                    const btn = $(this);
+                    const detailContainer = $('#detail-grid-container');
+                    const lookupId = parseInt(btn.data('table-id')); // The actual ID of the main lookup table
+                    const rulesPayload = [];
 
-            // Save ALL rules (new or existing)
-            $(document).on('click', '#btnSaveAllRules', function () {
-               
-            const btn = $(this);
-            const lookupId = parseInt(btn.data('lookup-id'));
-            const rulesPayload = [];
+                    let hasNewRule = false;
+                    let hasExistingRule = false;
 
-            let hasNewRule = false;
-            let hasExistingRule = false;
+                    // First, gather all rule data from the UI
+                    $('.rule-row').each(function() {
+                        const row = $(this);
+                        const ruleId = parseInt(row.data('rule-id')) || 0;
 
-            $('.rule-row').each(function () {
-                const row = $(this);
-                const ruleId = parseInt(row.data('rule-id')) || 0;
-
-                let rule = {
-                    id: ruleId,
-                    dynamicProperties: []
-                };
-
-                if (ruleId === 0) hasNewRule = true;
-                else hasExistingRule = true;
-
-
-                row.find('td[data-column-name]').each(function () {
-                    const cell = $(this);
-                    const colName = cell.data('column-name');
-                    let value = null,
-                        filter = 'Equals',
-                        columnType = 1;
-
-                    if (cell.data('is-dynamic-rule')) {
-                        value = cell.find('.value-input').val()?.trim();
-                        filter = cell.find('.operator-dropdown').val();
-                        columnType = 0;
-                    } else {
-                        value = cell.find('.value-input, .form-select').val()?.trim();
-                    }
-
-                    if (value) {
-                        rule.dynamicProperties.push({
-                            columnName: colName,
-                            value: value,
-                            filter: filter,
-                            columnType: columnType
+                        // Skip rows that don't have any data
+                        let hasData = false;
+                        row.find('.value-input, .form-select').each(function() {
+                            if ($(this).val()) {
+                                hasData = true;
+                                return false; // Exit .each loop
+                            }
                         });
+                        if (!hasData) return; // Continue to next .rule-row
+
+                        let rule = {
+                            id: ruleId,
+                            dynamicProperties: []
+                        };
+        
+                        // Check what kind of operation this is
+                        if (ruleId === 0) hasNewRule = true;
+                        else hasExistingRule = true;
+        
+                        row.find('td[data-column-name]').each(function() {
+                            const cell = $(this);
+                            const colName = cell.data('column-name');
+                            let value = null,
+                                filter = 'Equals',
+                                columnType = 1;
+
+                            if (cell.data('is-dynamic-rule')) {
+                                value = cell.find('.value-input').val()?.trim();
+                                filter = cell.find('.operator-dropdown').val();
+                                columnType = 0;
+                            } else {
+                                value = cell.find('.value-input, .form-select').val()?.trim();
+                            }
+
+                            if (value) {
+                                rule.dynamicProperties.push({
+                                    columnName: colName,
+                                    value: value,
+                                    filter: filter,
+                                    columnType: columnType
+                                });
+                            }
+                        });
+
+                        if (rule.dynamicProperties.length > 0) {
+                            rulesPayload.push(rule);
+                        }
+                    });
+
+                    // 1. Enforce the "one operation at a time" rule
+                    if (hasNewRule && hasExistingRule) {
+                        alert("You cannot add new rules and edit existing ones at the same time. Please save your changes for each operation separately.");
+                        return; // Stop the function
                     }
+
+                    if (rulesPayload.length === 0) {
+                        alert("No rules with data have been entered or changed.");
+                        return;
+                    }
+
+                    // 2. Determine the correct Tableid to send based on the operation type
+                    let tableIdToSend;
+                    if (hasNewRule) {
+                        // This is an ADD operation
+                        tableIdToSend = lookupId;
+                    } else if (hasExistingRule) {
+                        // This is an EDIT operation
+                        tableIdToSend = 0;
+                    } else {
+                        // Nothing to do
+                        return;
+                    }
+
+                    console.log("Operation Type:", hasNewRule ? "ADD" : "EDIT");
+                    console.log("Payload to be sent:", JSON.stringify(rulesPayload, null, 2));
+                    console.log("Tableid to send:", tableIdToSend);
+
+                    btn.prop('disabled', true).text('Saving...');
+    
+                    // Construct the URL with the conditional Tableid
+                    const urlWithParam = `${apiSaveDetailUrl}?Tableid=${tableIdToSend}`;
+
+                    fetch(urlWithParam, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            // Send the entire array of rules
+                            body: JSON.stringify(rulesPayload[0])
+                        })
+                        .then(res => {
+                            if (!res.ok) throw new Error('API Error: ' + res.statusText);
+                            return res.json();  
+                        })
+                        .then(data => {
+                            alert('Rules saved successfully!');
+                            detailContainer.slideUp().empty();
+                            $('.row-selected').removeClass('row-selected');
+                        })
+                        .catch(err => alert('Error: Could not save rules. ' + err.message))
+                        .finally(() => {
+                            btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules');
+                        });
                 });
+        //     // Save ALL rules (new or existing)
+        //     $(document).on('click', '#btnSaveAllRules', function () {
+               
+        //     const btn = $(this);
+        //     const lookupId = parseInt(btn.data('lookup-id'));
+        //     const rulesPayload = [];
 
-                if (rule.dynamicProperties.length > 0) {
-                    rulesPayload.push(rule);
-                }
-            });
+        //     let hasNewRule = false;
+        //     let hasExistingRule = false;
 
-            // ✅ Prevent mixed operations (both new and existing)
-            if (hasNewRule && hasExistingRule) {
-                alert("You cannot add and edit rules at the same time. Please perform one operation at a time.");
-                return;
-            }
+        //     $('.rule-row').each(function () {
+        //         const row = $(this);
+        //         const ruleId = parseInt(row.data('rule-id')) || 0;
 
-            if (rulesPayload.length === 0) {
-                alert("No rules found to save.");
-                return;
-            }
+        //         let rule = {
+        //             id: ruleId,
+        //             dynamicProperties: []
+        //         };
 
-            // ✅ Determine correct Tableid
-            const tableIdToSend = hasNewRule ? lookupId : 0;
+        //         if (ruleId === 0) hasNewRule = true;
+        //         else hasExistingRule = true;
 
-            console.log("Payload to be sent:", JSON.stringify(rulesPayload, null, 2));
-            console.log("Tableid to send:", tableIdToSend);
-            alert("Check the browser's console (F12) to see the data object that will be sent to the API.");
 
-            btn.prop('disabled', true).text('Saving...');
-            const urlWithParam = `${apiSaveDetailUrl}?Tableid=${tableIdToSend}`;
+        //         row.find('td[data-column-name]').each(function () {
+        //             const cell = $(this);
+        //             const colName = cell.data('column-name');
+        //             let value = null,
+        //                 filter = 'Equals',
+        //                 columnType = 1;
 
-            fetch(urlWithParam, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rulesPayload[0])
+        //             if (cell.data('is-dynamic-rule')) {
+        //                 value = cell.find('.value-input').val()?.trim();
+        //                 filter = cell.find('.operator-dropdown').val();
+        //                 columnType = 0;
+        //             } else {
+        //                 value = cell.find('.value-input, .form-select').val()?.trim();
+        //             }
+
+        //             if (value) {
+        //                 rule.dynamicProperties.push({
+        //                     columnName: colName,
+        //                     value: value,
+        //                     filter: filter,
+        //                     columnType: columnType
+        //                 });
+        //             }
+        //         });
+
+        //         if (rule.dynamicProperties.length > 0) {
+        //             rulesPayload.push(rule);
+        //         }
+        //     });
+
+        //     // ✅ Prevent mixed operations (both new and existing)
+        //     if (hasNewRule && hasExistingRule) {
+        //         alert("You cannot add and edit rules at the same time. Please perform one operation at a time.");
+        //         return;
+        //     }
+
+        //     if (rulesPayload.length === 0) {
+        //         alert("No rules found to save.");
+        //         return;
+        //     }
+
+        //     // ✅ Determine correct Tableid
+        //     const tableIdToSend = hasNewRule ? lookupId : 0;
+
+        //     console.log("Payload to be sent:", JSON.stringify(rulesPayload, null, 2));
+        //     console.log("Tableid to send:", tableIdToSend);
+        //     //alert("Check the browser's console (F12) to see the data object that will be sent to the API.");
+
+        //     btn.prop('disabled', true).text('Saving...');
+        //     const urlWithParam = `${apiSaveDetailUrl}?Tableid=${tableIdToSend}`;
+
+        //     fetch(urlWithParam, {
+        //         method: 'POST',
+        //         headers: { 'Content-Type': 'application/json' },
+        //         body: JSON.stringify(rulesPayload[0])
 
               
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error('API Error: ' + res.statusText);
-                    return res.json();
-                })
-                .then(data => {
-                    alert('Rules saved successfully!');
-                    detailContainer.slideUp().empty();
-                    $('.row-selected').removeClass('row-selected');
-                })
-                .catch(err => alert('Error: Could not save rules. ' + err.message))
-                .finally(() => {
-                    btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules');
-                });
-        });
+        //     })
+        //         .then(res => {
+        //             if (!res.ok) throw new Error('API Error: ' + res.statusText);
+        //             return res.json();
+        //         })
+        //         .then(data => {
+        //             alert('Rules saved successfully!');
+        //             detailContainer.slideUp().empty();
+        //             $('.row-selected').removeClass('row-selected');
+        //         })
+        //         .catch(err => alert('Error: Could not save rules. ' + err.message))
+        //         .finally(() => {
+        //             btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules');
+        //         });
+        // });
 
             // CASCADING DROPDOWN LOGIC (MODIFIED to return a promise)
             function populateCategoryDropdown(parentId, targetDropdown) {

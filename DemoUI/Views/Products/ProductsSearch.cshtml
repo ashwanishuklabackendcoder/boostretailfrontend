@@ -1,0 +1,122 @@
+﻿@model ProductSearchViewModel
+@{
+    ViewData["Title"] = "Product Search";
+}
+
+<h3>Product Search</h3>
+<hr />
+<div class="row mb-3">
+    <div class="col">
+        <label>Suppliers</label>
+        <select id="supplierDropdown" class="form-control"></select>
+    </div>
+    <div class="col">
+        <label>Brands</label>
+        <select id="brandDropdown" class="form-control"></select>
+    </div>
+    <div class="col">
+        <label>Categories</label>
+        <select id="categoryDropdown" class="form-control"></select>
+    </div>
+    <div class="col">
+        <label>Year</label>
+        <input id="yearInput" class="form-control" placeholder="Year" />
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <label>MPN</label>
+        <input id="mpnInput" class="form-control" placeholder="MPN" />
+    </div>
+    <div class="col">
+        <label>Barcode</label>
+        <input id="barcodeInput" class="form-control" placeholder="Barcode" />
+    </div>
+    <div class="col">
+        <label>Title</label>
+        <input id="titleInput" class="form-control" placeholder="Title" />
+    </div>
+    <div class="col">
+        <label> </label>
+        <button id="searchBtn" class="btn btn-primary w-100">Search</button>
+    </div>
+</div>
+
+<table class="table table-bordered" id="productsTable">
+    <thead>
+        <tr>
+            <th>MPN</th>
+            <th>Title</th>
+            <th>Brand</th>
+            <th>Category1</th>
+            <th>Category2</th>
+            <th>Category3</th>
+            <th>Colour</th>
+            <th>Size</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    debugger;
+    const supplierApi = "https://simapi.runasp.net/api/Catalogue/Suppliers";
+    const brandsApi = "https://simapi.runasp.net/api/Catalogue/Brands";
+    const categoriesApi = "https://simapi.runasp.net/api/Category/GetCategory";
+    const productsApi = "https://simapi.runasp.net/api/Products/Search";
+
+    async function loadDropdowns() {
+        const [suppliers, brands, categories] = await Promise.all([
+            fetch(supplierApi).then(r => r.json()),
+            fetch(brandsApi).then(r => r.json()),
+            fetch(categoriesApi).then(r => r.json())
+        ]);
+
+        const supplierDropdown = document.getElementById("supplierDropdown");
+        suppliers.forEach(s => supplierDropdown.add(new Option(s.name, s.id)));
+
+        const brandDropdown = document.getElementById("brandDropdown");
+        brands.forEach(b => brandDropdown.add(new Option(b.name, b.id)));
+
+        const categoryDropdown = document.getElementById("categoryDropdown");
+        categories.forEach(c => categoryDropdown.add(new Option(c.name, c.id)));
+    }
+
+    async function searchProducts() {
+        const query = new URLSearchParams({
+            Supplier: document.getElementById("supplierDropdown").value,
+            BrandId: document.getElementById("brandDropdown").value,
+            CategoryId: document.getElementById("categoryDropdown").value,
+            Year: document.getElementById("yearInput").value,
+            MPN: document.getElementById("mpnInput").value,
+            Barcode: document.getElementById("barcodeInput").value,
+            Title: document.getElementById("titleInput").value
+        });
+
+        const products = await fetch(`${productsApi}?${query}`).then(r => r.json());
+
+        const tbody = document.querySelector("#productsTable tbody");
+        tbody.innerHTML = ""; // clear previous results
+        products.forEach(p => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${p.mpn}</td>
+                    <td>${p.title}</td>
+                    <td>${p.brand}</td>
+                    <td>${p.category1}</td>
+                    <td>${p.category2}</td>
+                    <td>${p.category3}</td>
+                    <td>${p.colour}</td>
+                    <td>${p.size}</td>
+                    <td>${p.price}</td>
+                </tr>
+            `;
+        });
+    }
+
+    document.getElementById("searchBtn").addEventListener("click", searchProducts);
+
+    loadDropdowns();
+</script>

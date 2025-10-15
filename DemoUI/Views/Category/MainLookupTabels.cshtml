@@ -120,7 +120,7 @@
             // NEW: Add your API endpoint for saving the detail row data
             const apiSaveDetailUrl = "https://simapi.runasp.net/api/Category/SaveCategoryMapAsync";
             const apiGetRulesUrl = "https://simapi.runasp.net/api/Category/GetCategoryMaps";
-
+            const apiCatalogueSave = "https://simapi.runasp.net/api/Catalogue/ProcessCatalogueRules";
 
             const tableBody = $('#lookup-table-body');
             let editId = null;
@@ -187,7 +187,8 @@
             // ======================
             // LOAD SUPPLIER COLUMNS
             // ======================
-            $('#supplierFeed').on('change', function () {
+
+                $('#supplierFeed').on('change', function () {
                 const supplierId = $(this).val();
                 const container = $('#columnsContainer');
                 container.html('<p class="text-muted small">Loading columns...</p>');
@@ -197,52 +198,108 @@
                     return;
                 }
 
-                fetch(`${apiColumnsUrl}?supplier=${supplierId}`)
-                    .then(res => res.json())
-                    .then(columns => {
-                        if (!columns || columns.length === 0) {
-                            container.html('<p class="text-muted small text-danger">No columns found for this supplier.</p>');
-                            return;
-                        }
+                // ✅ Fixed Columns List
+                const fixedColumns = [
+                    'MPN', 'Barcode', 'ProductTitle', 'GroupName', 'Brand',
+                    'Supplier', 'ProductType', 'GenderOrAge', 'Colour', 'Size',
+                    'Weight', 'BoxQty', 'Cost', 'Price', 'SalePrice', 'VatRate',
+                    'Year', 'Processed'
+                ];
 
-                        let html = `
-                            <div class="form-check mb-2">
-                                <input type="checkbox" id="selectAllCols" class="form-check-input">
-                                <label for="selectAllCols" class="form-check-label fw-bold">Select All</label>
-                            </div>
-                        `;
+                // Build the HTML
+                let html = `
+                    <div class="form-check mb-2">
+                        <input type="checkbox" id="selectAllCols" class="form-check-input">
+                        <label for="selectAllCols" class="form-check-label fw-bold">Select All</label>
+                    </div>
+                `;
 
-                        columns.forEach(col => {
-                            html += `
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input column-check" value="${col}">
-                                    <label class="form-check-label">${col}</label>
-                                </div>`;
+                fixedColumns.forEach(col => {
+                    html += `
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input column-check" value="${col}">
+                            <label class="form-check-label">${col}</label>
+                        </div>`;
+                });
+
+                container.html(html);
+
+                // ✅ "Select All" handler
+                $('#selectAllCols').on('change', function () {
+                    container.find('.column-check').prop('checked', this.checked);
+                });
+
+                // ✅ If editing an existing supplier, pre-select columns
+                if (editId && Array.isArray(window.editSelectedColumns)) {
+                    setTimeout(() => {
+                        container.find('.column-check').each(function () {
+                            if (window.editSelectedColumns.includes($(this).val())) {
+                                $(this).prop('checked', true);
+                            }
                         });
-
-                        container.html(html);
-
-                        $('#selectAllCols').on('change', function () {
-                            container.find('.column-check').prop('checked', this.checked);
-                        });
-
-                        if (editId && Array.isArray(window.editSelectedColumns)) {
-                            setTimeout(() => {
-                                container.find('.column-check').each(function () {
-                                    if (window.editSelectedColumns.includes($(this).val())) {
-                                        $(this).prop('checked', true);
-                                    }
-                                });
-                            }, 50);
-                        }
-                    })
-                    .catch(() => {
-                        container.html('<p class="text-danger small">Error loading columns.</p>');
-                    });
+                    }, 50);
+                }
             });
+            //Dynamic Columns Mapping
+            // $('#supplierFeed').on('change', function () {
+            //     const supplierId = $(this).val();
+            //     const container = $('#columnsContainer');
+            //     container.html('<p class="text-muted small">Loading columns...</p>');
+
+            //     if (!supplierId) {
+            //         container.html('<p class="text-muted small">Select supplier first to load columns...</p>');
+            //         return;
+            //     }
+
+            //     fetch(`${apiColumnsUrl}?supplier=${supplierId}`)
+            //         .then(res => res.json())
+            //         .then(columns => {
+            //             if (!columns || columns.length === 0) {
+            //                 container.html('<p class="text-muted small text-danger">No columns found for this supplier.</p>');
+            //                 return;
+            //             }
+
+            //             let html = `
+            //                 <div class="form-check mb-2">
+            //                     <input type="checkbox" id="selectAllCols" class="form-check-input">
+            //                     <label for="selectAllCols" class="form-check-label fw-bold">Select All</label>
+            //                 </div>
+            //             `;
+
+            //             columns.forEach(col => {
+            //                 html += `
+            //                     <div class="form-check">
+            //                         <input type="checkbox" class="form-check-input column-check" value="${col}">
+            //                         <label class="form-check-label">${col}</label>
+            //                     </div>`;
+            //             });
+
+            //             container.html(html);
+
+            //             $('#selectAllCols').on('change', function () {
+            //                 container.find('.column-check').prop('checked', this.checked);
+            //             });
+
+            //             if (editId && Array.isArray(window.editSelectedColumns)) {
+            //                 setTimeout(() => {
+            //                     container.find('.column-check').each(function () {
+            //                         if (window.editSelectedColumns.includes($(this).val())) {
+            //                             $(this).prop('checked', true);
+            //                         }
+            //                     });
+            //                 }, 50);
+            //             }
+            //         })
+            //         .catch(() => {
+            //             container.html('<p class="text-danger small">Error loading columns.</p>');
+            //         });
+            // });
+
             // ======================
             // CREATE OR UPDATE LOOKUP TABLE
             // ======================
+
+
             $('#btnCreateLookup').on('click', function () {
                 const tableName = $('#tableName').val()?.trim();
                 const supplierFeed = $('#supplierFeed').val();
@@ -544,217 +601,119 @@
                 }
             });
             // ✅ CORRECTED to handle one operation type at a time (Add OR Edit)
-                $(document).on('click', '#btnSaveAllRules', function() {
-                    const btn = $(this);
-                    const detailContainer = $('#detail-grid-container');
-                    const lookupId = parseInt(btn.data('table-id')); // The actual ID of the main lookup table
-                    const rulesPayload = [];
+                  $(document).on('click', '#btnSaveAllRules', function() {
+            const btn = $(this);
+            const lookupId = parseInt(btn.data('table-id')); // The actual ID of the main lookup table
+            const rulesPayload = [];
+            let hasNewRule = false;
+            let hasExistingRule = false;
 
-                    let hasNewRule = false;
-                    let hasExistingRule = false;
+            // Gather all rule data from the UI
+            $('.rule-row').each(function() {
+                const row = $(this);
+                const ruleId = parseInt(row.data('rule-id')) || 0;
 
-                    // First, gather all rule data from the UI
-                    $('.rule-row').each(function() {
-                        const row = $(this);
-                        const ruleId = parseInt(row.data('rule-id')) || 0;
-
-                        // Skip rows that don't have any data
-                        let hasData = false;
-                        row.find('.value-input, .form-select').each(function() {
-                            if ($(this).val()) {
-                                hasData = true;
-                                return false; // Exit .each loop
-                            }
-                        });
-                        if (!hasData) return; // Continue to next .rule-row
-
-                        let rule = {
-                            id: ruleId,
-                            dynamicProperties: []
-                        };
-        
-                        // Check what kind of operation this is
-                        if (ruleId === 0) hasNewRule = true;
-                        else hasExistingRule = true;
-        
-                        row.find('td[data-column-name]').each(function() {
-                            const cell = $(this);
-                            const colName = cell.data('column-name');
-                            let value = null,
-                                filter = 'Equals',
-                                columnType = 1;
-
-                            if (cell.data('is-dynamic-rule')) {
-                                value = cell.find('.value-input').val()?.trim();
-                                filter = cell.find('.operator-dropdown').val();
-                                columnType = 0;
-                            } else {
-                                value = cell.find('.value-input, .form-select').val()?.trim();
-                            }
-
-                            if (value) {
-                                rule.dynamicProperties.push({
-                                    columnName: colName,
-                                    value: value,
-                                    filter: filter,
-                                    columnType: columnType
-                                });
-                            }
-                        });
-
-                        if (rule.dynamicProperties.length > 0) {
-                            rulesPayload.push(rule);
-                        }
-                    });
-
-                    // 1. Enforce the "one operation at a time" rule
-                    if (hasNewRule && hasExistingRule) {
-                        alert("You cannot add new rules and edit existing ones at the same time. Please save your changes for each operation separately.");
-                        return; // Stop the function
+                // Skip rows without data
+                let hasData = false;
+                row.find('.value-input, .form-select').each(function() {
+                    if ($(this).val()) {
+                        hasData = true;
+                        return false; // Exit .each loop
                     }
-
-                    if (rulesPayload.length === 0) {
-                        alert("No rules with data have been entered or changed.");
-                        return;
-                    }
-
-                    // 2. Determine the correct Tableid to send based on the operation type
-                    let tableIdToSend;
-                    if (hasNewRule) {
-                        // This is an ADD operation
-                        tableIdToSend = lookupId;
-                    } else if (hasExistingRule) {
-                        // This is an EDIT operation
-                        tableIdToSend = 0;
-                    } else {
-                        // Nothing to do
-                        return;
-                    }
-
-                    console.log("Operation Type:", hasNewRule ? "ADD" : "EDIT");
-                    console.log("Payload to be sent:", JSON.stringify(rulesPayload, null, 2));
-                    console.log("Tableid to send:", tableIdToSend);
-
-                    btn.prop('disabled', true).text('Saving...');
-    
-                    // Construct the URL with the conditional Tableid
-                    const urlWithParam = `${apiSaveDetailUrl}?Tableid=${tableIdToSend}`;
-
-                    fetch(urlWithParam, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            // Send the entire array of rules
-                            body: JSON.stringify(rulesPayload[0])
-                        })
-                        .then(res => {
-                            if (!res.ok) throw new Error('API Error: ' + res.statusText);
-                            return res.json();  
-                        })
-                        .then(data => {
-                            alert('Rules saved successfully!');
-                            detailContainer.slideUp().empty();
-                            $('.row-selected').removeClass('row-selected');
-                        })
-                        .catch(err => alert('Error: Could not save rules. ' + err.message))
-                        .finally(() => {
-                            btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules');
-                        });
                 });
-        //     // Save ALL rules (new or existing)
-        //     $(document).on('click', '#btnSaveAllRules', function () {
-               
-        //     const btn = $(this);
-        //     const lookupId = parseInt(btn.data('lookup-id'));
-        //     const rulesPayload = [];
+                if (!hasData) return; // Continue to next .rule-row
 
-        //     let hasNewRule = false;
-        //     let hasExistingRule = false;
+                let rule = {
+                    id: ruleId,
+                    dynamicProperties: []
+                };
 
-        //     $('.rule-row').each(function () {
-        //         const row = $(this);
-        //         const ruleId = parseInt(row.data('rule-id')) || 0;
+                // Determine operation type
+                if (ruleId === 0) hasNewRule = true;
+                else hasExistingRule = true;
 
-        //         let rule = {
-        //             id: ruleId,
-        //             dynamicProperties: []
-        //         };
+                // Process each cell with column data
+                row.find('td[data-column-name]').each(function() {
+                    const cell = $(this);
+                    const colName = cell.data('column-name');
+                    let value = null;
+                    let filter = 'Equals';
+                    let columnType = 1;
 
-        //         if (ruleId === 0) hasNewRule = true;
-        //         else hasExistingRule = true;
+                    if (cell.data('is-dynamic-rule')) {
+                        value = cell.find('.value-input').val()?.trim();
+                        filter = cell.find('.operator-dropdown').val() || 'Equals';
+                        columnType = 0;
+                    } else {
+                        value = cell.find('.value-input, .form-select').val()?.trim();
+                    }
 
+                    if (value) {
+                        rule.dynamicProperties.push({
+                            columnName: colName,
+                            value: value,
+                            filter: filter,
+                            columnType: columnType
+                        });
+                    }
+                });
 
-        //         row.find('td[data-column-name]').each(function () {
-        //             const cell = $(this);
-        //             const colName = cell.data('column-name');
-        //             let value = null,
-        //                 filter = 'Equals',
-        //                 columnType = 1;
+                if (rule.dynamicProperties.length > 0) {
+                    rulesPayload.push(rule);
+                }
+            });
 
-        //             if (cell.data('is-dynamic-rule')) {
-        //                 value = cell.find('.value-input').val()?.trim();
-        //                 filter = cell.find('.operator-dropdown').val();
-        //                 columnType = 0;
-        //             } else {
-        //                 value = cell.find('.value-input, .form-select').val()?.trim();
-        //             }
+            // Enforce "one operation at a time" rule
+            if (hasNewRule && hasExistingRule) {
+                alert("You cannot add new rules and edit existing ones at the same time. Please save your changes for each operation separately.");
+                return;
+            }
 
-        //             if (value) {
-        //                 rule.dynamicProperties.push({
-        //                     columnName: colName,
-        //                     value: value,
-        //                     filter: filter,
-        //                     columnType: columnType
-        //                 });
-        //             }
-        //         });
+            // Validate payload
+            if (rulesPayload.length === 0) {
+                alert("No rules with data have been entered or changed.");
+                return;
+            }
 
-        //         if (rule.dynamicProperties.length > 0) {
-        //             rulesPayload.push(rule);
-        //         }
-        //     });
+            // Determine Tableid based on operation type
+            const tableIdToSend = hasNewRule ? lookupId : (hasExistingRule ? 0 : null);
+            if (tableIdToSend === null) return;
 
-        //     // ✅ Prevent mixed operations (both new and existing)
-        //     if (hasNewRule && hasExistingRule) {
-        //         alert("You cannot add and edit rules at the same time. Please perform one operation at a time.");
-        //         return;
-        //     }
+            // Combine all dynamic properties of all rules into a single array
+            const allDynamicProperties = rulesPayload.flatMap(r => r.dynamicProperties);
 
-        //     if (rulesPayload.length === 0) {
-        //         alert("No rules found to save.");
-        //         return;
-        //     }
+            // Log operation details
+            console.log("Operation Type:", hasNewRule ? "ADD" : "EDIT");
+            console.log("Payload to be sent:", JSON.stringify(allDynamicProperties, null, 2));
+            console.log("Tableid to send:", tableIdToSend);
 
-        //     // ✅ Determine correct Tableid
-        //     const tableIdToSend = hasNewRule ? lookupId : 0;
+            // Disable button during API call
+            btn.prop('disabled', true).text('Saving...');
 
-        //     console.log("Payload to be sent:", JSON.stringify(rulesPayload, null, 2));
-        //     console.log("Tableid to send:", tableIdToSend);
-        //     //alert("Check the browser's console (F12) to see the data object that will be sent to the API.");
-
-        //     btn.prop('disabled', true).text('Saving...');
-        //     const urlWithParam = `${apiSaveDetailUrl}?Tableid=${tableIdToSend}`;
-
-        //     fetch(urlWithParam, {
-        //         method: 'POST',
-        //         headers: { 'Content-Type': 'application/json' },
-        //         body: JSON.stringify(rulesPayload[0])
-
-              
-        //     })
-        //         .then(res => {
-        //             if (!res.ok) throw new Error('API Error: ' + res.statusText);
-        //             return res.json();
-        //         })
-        //         .then(data => {
-        //             alert('Rules saved successfully!');
-        //             detailContainer.slideUp().empty();
-        //             $('.row-selected').removeClass('row-selected');
-        //         })
-        //         .catch(err => alert('Error: Could not save rules. ' + err.message))
-        //         .finally(() => {
-        //             btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules');
-        //         });
-        // });
+            // Make API call
+            fetch(apiCatalogueSave, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    jsonRules: JSON.stringify(allDynamicProperties)
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('API Error: ' + res.statusText);
+                return res.json();
+            })
+            .then(data => {
+                alert(`Processed successfully: ${data.processedCount || 0} records inserted into MasterProducts.`);
+            })
+            .catch(err => {
+                alert('Error: ' + err.message);
+            })
+            .finally(() => {
+                btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules');
+            });
+        });
 
             // CASCADING DROPDOWN LOGIC (MODIFIED to return a promise)
             function populateCategoryDropdown(parentId, targetDropdown) {
@@ -839,1189 +798,5 @@
         });
     </script>
 }
-
-@* 
-@section Scripts {
-    <style>
-        #lookup-table-body tr {
-            cursor: pointer;
-        }
-
-            #lookup-table-body tr.row-selected {
-                background-color: #e9ecef !important;
-            }
-    </style>
-
-    <script>
-        $(document).ready(function () {
-            // MODIFIED: Added new API endpoints
-            const apiLookupUrl = "https://simapi.runasp.net/api/Category/GetCategoryLookups";
-            const apiCreateUrl = "https://simapi.runasp.net/api/Category/AddCategoryLookupAsync";
-            const apiUpdateUrl = "https://simapi.runasp.net/api/Category/UpdateCategoryLookupAsync";
-            const apiDeleteUrl = "https://simapi.runasp.net/api/Category/DeleteCategoryLookupAsync";
-            const apiColumnsUrl = "https://simapi.runasp.net/api/Category/GetSupplierColumns";
-            const apiCategoriesUrl = "https://simapi.runasp.net/api/Category/GetCategoryByParentId";
-
-            // NEW: Add your API endpoints for getting, saving, and deleting rules
-            const apiSaveRulesUrl = "https://simapi.runasp.net/api/Category/SaveCategoryMapAsync"; // Note: plural "Rules"
-            const apiGetRulesUrl = "https://simapi.runasp.net/api/Category/GetCategoryMaps";
-            const apiDeleteRuleUrl = "https://simapi.runasp.net/api/Category/DeleteRule";
-
-            // ... (All other functions from the previous response up to the main row click handler remain here unchanged) ...
-            // ======================
-            // LOAD LOOKUP TABLES
-            // ======================
-            function loadLookupTables() {
-                $('#detail-grid-container').hide().empty();
-                fetch(apiLookupUrl)
-                    .then(res => res.json())
-                    .then(data => {
-                        tableBody.empty();
-                        if (!data || data.length === 0) {
-                            tableBody.html('<tr><td colspan="6" class="text-center p-4">No lookup tables found.</td></tr>');
-                            return;
-                        }
-
-                        data.forEach(item => {
-                            const supplierDisplay = getSupplierNameFromValue(item.supplierFeed);
-                            tableBody.append(`
-                                <tr data-id="${item.id}">
-                                    <td class="p-3">${item.tableName}</td>
-                                    <td class="p-3">${supplierDisplay}</td>
-                                    <td class="p-3">${item.supplierColumns}</td>
-                                    <td class="p-3">${item.categorisation}</td>
-                                    <td class="p-3">
-                                        <input class="form-check-input isActiveCheckbox" type="checkbox" ${item.isActive ? 'checked' : ''} disabled>
-                                    </td>
-                                    <td class="p-3">
-                                        <a href="#" class="edit-lookup" title="Edit"><i class="fa-solid fa-pen"></i></a>
-                                        <a href="#" class="delete-lookup ms-2" title="Delete"><i class="fa-solid fa-trash-can"></i></a>
-                                    </td>
-                                </tr>
-                            `);
-                        });
-                    })
-                    .catch(() => {
-                        tableBody.html('<tr><td colspan="6" class="text-center text-danger p-4">Failed to load data.</td></tr>');
-                    });
-            }
-
-            loadLookupTables();
-             // ======================
-            // OPEN MODAL FOR CREATE
-            // ======================
-            $('.btn-add-lookup').on('click', function () {
-                editId = null;
-                $('#lookupModalLabel').text('New Lookup Table');
-                $('#btnCreateLookup').text('Create Lookup');
-                resetModal();
-                $('#lookupModal').modal('show');
-            });
-
-            function resetModal() {
-                $('#tableName').val('');
-                $('#supplierFeed').val('');
-                $('#categorisation').val('');
-                $('#columnsContainer').html('<p class="text-muted small">Select supplier first to load columns...</p>');
-                $('#btnCreateLookup').prop('disabled', false);
-            }
-
-            // ======================
-            // LOAD SUPPLIER COLUMNS
-            // ======================
-            $('#supplierFeed').on('change', function () {
-                const supplierId = $(this).val();
-                const container = $('#columnsContainer');
-                container.html('<p class="text-muted small">Loading columns...</p>');
-
-                if (!supplierId) {
-                    container.html('<p class="text-muted small">Select supplier first to load columns...</p>');
-                    return;
-                }
-
-                fetch(`${apiColumnsUrl}?supplier=${supplierId}`)
-                    .then(res => res.json())
-                    .then(columns => {
-                        if (!columns || columns.length === 0) {
-                            container.html('<p class="text-muted small text-danger">No columns found for this supplier.</p>');
-                            return;
-                        }
-
-                        let html = `
-                            <div class="form-check mb-2">
-                                <input type="checkbox" id="selectAllCols" class="form-check-input">
-                                <label for="selectAllCols" class="form-check-label fw-bold">Select All</label>
-                            </div>
-                        `;
-
-                        columns.forEach(col => {
-                            html += `
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input column-check" value="${col}">
-                                    <label class="form-check-label">${col}</label>
-                                </div>`;
-                        });
-
-                        container.html(html);
-
-                        $('#selectAllCols').on('change', function () {
-                            container.find('.column-check').prop('checked', this.checked);
-                        });
-
-                        if (editId && Array.isArray(window.editSelectedColumns)) {
-                            setTimeout(() => {
-                                container.find('.column-check').each(function () {
-                                    if (window.editSelectedColumns.includes($(this).val())) {
-                                        $(this).prop('checked', true);
-                                    }
-                                });
-                            }, 50);
-                        }
-                    })
-                    .catch(() => {
-                        container.html('<p class="text-danger small">Error loading columns.</p>');
-                    });
-            });
-            // ======================
-            // CREATE OR UPDATE LOOKUP TABLE
-            // ======================
-            $('#btnCreateLookup').on('click', function () {
-                const tableName = $('#tableName').val()?.trim();
-                const supplierFeed = $('#supplierFeed').val();
-                const categorisation = $('#categorisation').val();
-                const selectedColumns = $('#lookupModal .column-check:checked').map(function () {
-                    return $(this).val();
-                }).get();
-                const isActive = true; // Default to true on create/update
-
-                if (!tableName || !supplierFeed || !categorisation || selectedColumns.length === 0) {
-                    alert('⚠️ Please fill all required fields.');
-                    return;
-                }
-
-                const payload = {
-                    id: editId || 0,
-                    tableName,
-                    supplierFeed: parseInt(supplierFeed),
-                    categorisation,
-                    supplierColumns: selectedColumns.join(', '),
-                    isActive
-                };
-
-                const url = editId ? `${apiUpdateUrl}/${editId}` : apiCreateUrl;
-                const method = editId ? "PUT" : "POST";
-                $('#btnCreateLookup').prop('disabled', true).text(editId ? 'Saving...' : 'Creating...');
-
-                fetch(url, {
-                    method: method,
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                })
-                    .then(res => {
-                        if (!res.ok) throw new Error(editId ? "Failed to update" : "Failed to create");
-                        return res.json();
-                    })
-                    .then(() => {
-                        $('#lookupModal').modal('hide');
-                        loadLookupTables();
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert(err.message);
-                    })
-                    .finally(() => {
-                        $('#btnCreateLookup').prop('disabled', false).text(editId ? 'Save Changes' : 'Create Lookup');
-                    });
-            });
-
-            // ======================
-            // EDIT LOOKUP TABLE
-            // ======================
-            $(document).on('click', '.edit-lookup', function (e) {
-                e.preventDefault();
-                const row = $(this).closest('tr');
-                editId = row.data('id');
-
-                $('#lookupModalLabel').text('Edit Lookup Table');
-                $('#btnCreateLookup').text('Save Changes');
-
-                $('#tableName').val(row.find('td:nth-child(1)').text().trim());
-                $('#categorisation').val(row.find('td:nth-child(4)').text().trim());
-
-                window.editSelectedColumns = row.find('td:nth-child(3)').text().split(',').map(c => c.trim()).filter(Boolean);
-
-                const supplierText = row.find('td:nth-child(2)').text().trim();
-                const supplierValue = getSupplierFeedValue(supplierText);
-
-                $('#lookupModal').modal('show');
-
-                $('#lookupModal').off('shown.bs.modal').on('shown.bs.modal', function () {
-                    if (supplierValue !== '') {
-                        $('#supplierFeed').val(supplierValue).trigger('change');
-                    } else {
-                        $('#supplierFeed').val('').trigger('change');
-                    }
-                });
-            });
-
-            // ======================
-            // DELETE LOOKUP TABLE
-            // ======================
-            $(document).on('click', '.delete-lookup', function (e) {
-                e.preventDefault();
-                const row = $(this).closest('tr');
-                const id = row.data('id');
-
-                if (!confirm('Are you sure you want to delete this lookup table?')) return;
-
-                fetch(`${apiDeleteUrl}/${id}`, { method: "DELETE" })
-                    .then(res => {
-                        if (!res.ok) throw new Error("Failed to delete");
-                        loadLookupTables();
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert(err.message);
-                    });
-            });
-
-            // ===============================
-            // MODIFIED: MAJOR REFACTOR FOR EDITING RULES
-            // ===============================
-
-            // This helper function generates the HTML for a single rule row
-            function getRuleRowHtml(rule, allDynamicColumns, categorisation) {
-                // `rule` can be a data object or null for a new row
-                rule = rule || { id: 0, dynamicProperties: [] };
-                let inputsHtml = '';
-
-                // Helper to find a property's value from the rule data
-                const getProp = (colName) => rule.dynamicProperties.find(p => p.columnName === colName) || {};
-
-                // A. Create inputs for DYNAMIC columns
-                allDynamicColumns.forEach(col => {
-                    const prop = getProp(col);
-                    inputsHtml += `
-                        <td class="p-2" data-column-name="${col}" data-is-dynamic-rule="true">
-                            <div class="input-group input-group-sm">
-                                <select class="form-select operator-dropdown" style="max-width: 120px;">
-                                    <option value="Contains" ${prop.filter === 'Contains' ? 'selected' : ''}>Contains</option>
-                                    <option value="StartsWith" ${prop.filter === 'StartsWith' ? 'selected' : ''}>Starts with</option>
-                                    <option value="Equals" ${prop.filter === 'Equals' ? 'selected' : ''}>Equals</option>
-                                    <option value="EndsWith" ${prop.filter === 'EndsWith' ? 'selected' : ''}>Ends with</option>
-                                    <option value="NotContains" ${prop.filter === 'NotContains' ? 'selected' : ''}>Not contain</option>
-                                    <option value="NotEquals" ${prop.filter === 'NotEquals' ? 'selected' : ''}>Not equal</option>
-                                </select>
-                                <input type="text" class="form-control value-input" value="${prop.value || ''}">
-                            </div>
-                        </td>`;
-                });
-
-                // B. Create inputs for FIXED columns
-                if (categorisation === 'Categories') {
-                    const cat1 = getProp('Category1');
-                    const cat2 = getProp('Category2');
-                    const cat3 = getProp('Category3');
-                    inputsHtml += `
-                        <td class="p-2" data-column-name="Category1" data-is-dynamic-rule="false"><select class="form-select form-select-sm cat1-dropdown" data-selected-value="${cat1.value || ''}"><option>Loading...</option></select></td>
-                        <td class="p-2" data-column-name="Category2" data-is-dynamic-rule="false"><select class="form-select form-select-sm cat2-dropdown" data-selected-value="${cat2.value || ''}" disabled><option>...</option></select></td>
-                        <td class="p-2" data-column-name="Category3" data-is-dynamic-rule="false"><select class="form-select form-select-sm cat3-dropdown" data-selected-value="${cat3.value || ''}" disabled><option>...</option></select></td>
-                    `;
-                } else if (categorisation === 'Search 1/2') {
-                    const model = getProp('Model');
-                    const brand = getProp('BrandName');
-                    inputsHtml += `
-                        <td class="p-2" data-column-name="Model" data-is-dynamic-rule="false"><input type="text" class="form-control form-control-sm value-input" value="${model.value || ''}"></td>
-                        <td class="p-2" data-column-name="BrandName" data-is-dynamic-rule="false"><input type="text" class="form-control form-control-sm value-input" value="${brand.value || ''}"></td>
-                    `;
-                }
-
-                // C. Add the Action cell with a delete button
-                const deleteButton = rule.id !== 0
-                    ? `<button class="btn btn-danger btn-sm btn-delete-rule" data-rule-id="${rule.id}"><i class="fa-solid fa-trash-can"></i></button>`
-                    : `<button class="btn btn-secondary btn-sm btn-delete-rule" data-rule-id="0"><i class="fa-solid fa-times"></i></button>`;
-
-                return `<tr class="rule-row" data-rule-id="${rule.id}">${inputsHtml}<td class="p-2 align-middle text-center">${deleteButton}</td></tr>`;
-            }
-
-            // This function handles the complex population of cascading dropdowns for an existing rule
-            async function populateCascadingDropdownsForRow($row) {
-                const cat1Dropdown = $row.find('.cat1-dropdown');
-                const cat2Dropdown = $row.find('.cat2-dropdown');
-                const cat3Dropdown = $row.find('.cat3-dropdown');
-
-                const cat1val = cat1Dropdown.data('selected-value');
-                const cat2val = cat2Dropdown.data('selected-value');
-                const cat3val = cat3Dropdown.data('selected-value');
-
-                // Populate Cat1
-                await populateCategoryDropdown(null, cat1Dropdown);
-                if (cat1val) {
-                    cat1Dropdown.val(cat1val);
-                    // Populate Cat2
-                    await populateCategoryDropdown(cat1val, cat2Dropdown);
-                    if (cat2val) {
-                         cat2Dropdown.val(cat2val);
-                         // Populate Cat3
-                         await populateCategoryDropdown(cat2val, cat3Dropdown);
-                         if(cat3val) cat3Dropdown.val(cat3val);
-                    }
-                }
-            }
-
-            // This is the main click handler for a row in the lookup table
-            $(document).on('click', '#lookup-table-body tr', async function (e) {
-                if ($(e.target).closest('a').length) return;
-                const detailContainer = $('#detail-grid-container');
-                if ($(this).hasClass('row-selected')) {
-                    $(this).removeClass('row-selected');
-                    detailContainer.slideUp(() => $(this).empty());
-                    return;
-                }
-                $('#lookup-table-body tr').removeClass('row-selected');
-                $(this).addClass('row-selected');
-
-                const lookupId = $(this).data('id');
-                const tableName = $(this).find('td:nth-child(1)').text().trim();
-                const supplierColumnsText = $(this).find('td:nth-child(3)').text().trim();
-                const categorisation = $(this).find('td:nth-child(4)').text().trim();
-                const allDynamicColumns = supplierColumnsText ? supplierColumnsText.split(',').map(c => c.trim()) : [];
-
-                let headers = [...allDynamicColumns];
-                if (categorisation === 'Categories') headers.push('Category1', 'Category2', 'Category3');
-                if (categorisation === 'Search 1/2') headers.push('Model', 'Brand Name');
-
-                let detailHtml = `
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0">Edit Rules for: ${tableName}</h6>
-                        </div>
-                        <div class="card-body p-0"><div class="table-responsive">
-                            <table class="table table-bordered mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        ${headers.map(h => `<th class="p-2">${h}</th>`).join('')}
-                                        <th class="p-2 text-center" style="width: 60px;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="detail-entry-body">
-                                    <tr><td colspan="${headers.length + 1}" class="text-center p-4"><div class="spinner-border spinner-border-sm"></div> Loading rules...</td></tr>
-                                </tbody>
-                            </table>
-                        </div></div>
-                        <div class="card-footer d-flex justify-content-between">
-                            <button id="btnAddNewRule" class="btn btn-info btn-sm"><i class="fa-solid fa-plus me-1"></i> Add New Rule</button>
-                            <button id="btnSaveAllRules" class="btn btn-success btn-sm" data-lookup-id="${lookupId}"><i class="fa-solid fa-check me-1"></i> Save All Rules</button>
-                        </div>
-                    </div>`;
-
-                detailContainer.html(detailHtml).slideDown();
-
-                // Fetch existing rules and render them
-                try {
-                    const res = await fetch(`${apiGetRulesUrl}?lookupId=${lookupId}`);
-                    if (!res.ok) throw new Error('Failed to fetch rules');
-                    const rules = await res.json();
-
-                    const detailBody = $('#detail-entry-body');
-                    detailBody.empty();
-
-                    // Render existing rules
-                    if (rules && rules.length > 0) {
-                        rules.forEach(rule => detailBody.append(getRuleRowHtml(rule, allDynamicColumns, categorisation)));
-                    } else {
-                        // If no rules, start with one blank new row
-                         detailBody.append(getRuleRowHtml(null, allDynamicColumns, categorisation));
-                    }
-
-                    // Populate all cascading dropdowns
-                    detailBody.find('tr.rule-row').each(function() {
-                        if ($(this).find('.cat1-dropdown').length) {
-                             populateCascadingDropdownsForRow($(this));
-                        }
-                    });
-
-                } catch (err) {
-                     $('#detail-entry-body').html(`<tr><td colspan="${headers.length + 1}" class="text-center p-4 text-danger">Error loading rules.</td></tr>`);
-                     console.error(err);
-                }
-            });
-
-            // Add new blank rule row
-            $(document).on('click', '#btnAddNewRule', function() {
-                const firstRow = $('#lookup-table-body tr.row-selected');
-                const supplierColumnsText = firstRow.find('td:nth-child(3)').text().trim();
-                const categorisation = firstRow.find('td:nth-child(4)').text().trim();
-                const allDynamicColumns = supplierColumnsText ? supplierColumnsText.split(',').map(c => c.trim()) : [];
-
-                const newRowHtml = getRuleRowHtml(null, allDynamicColumns, categorisation);
-                const $newRow = $(newRowHtml);
-                $('#detail-entry-body').append($newRow);
-
-                if (categorisation === 'Categories') {
-                    populateCategoryDropdown(null, $newRow.find('.cat1-dropdown'));
-                }
-            });
-
-            // Delete a rule (from UI or from DB)
-            $(document).on('click', '.btn-delete-rule', function() {
-                const ruleId = $(this).data('rule-id');
-                const row = $(this).closest('tr');
-
-                if (ruleId === 0) {
-                    row.remove(); // Just remove new, unsaved row
-                    return;
-                }
-
-                if (confirm('Are you sure you want to permanently delete this rule?')) {
-                    fetch(`${apiDeleteRuleUrl}?ruleId=${ruleId}`, { method: 'DELETE' })
-                        .then(res => {
-                            if (!res.ok) throw new Error('Failed to delete');
-                            row.fadeOut(300, function() { $(this).remove(); });
-                        })
-                        .catch(err => {
-                            alert('Error: Could not delete rule.');
-                            console.error(err);
-                        });
-                }
-            });
-
-            // Save ALL rules (new and existing)
-            $(document).on('click', '#btnSaveAllRules', function() {
-                const btn = $(this);
-                const lookupId = parseInt($(this).data('lookup-id'));
-                const rulesPayload = [];
-
-                $('.rule-row').each(function() {
-                    const row = $(this);
-                    let rule = {
-                        id: parseInt(row.data('rule-id')),
-                        dynamicProperties: []
-                    };
-
-                    row.find('td[data-column-name]').each(function() {
-                        const cell = $(this);
-                        const colName = cell.data('column-name');
-                        let value = null, filter = 'Equals', columnType = 1;
-
-                        if (cell.data('is-dynamic-rule')) {
-                             value = cell.find('.value-input').val()?.trim();
-                             filter = cell.find('.operator-dropdown').val();
-                             columnType = 0;
-                        } else {
-                             value = cell.find('.value-input, .form-select').val()?.trim();
-                        }
-
-                        if (value) {
-                             rule.dynamicProperties.push({ columnName: colName, value: value, filter: filter, columnType: columnType });
-                        }
-                    });
-
-                    // Only add rule to payload if it has at least one property
-                    if(rule.dynamicProperties.length > 0) {
-                        rulesPayload.push(rule);
-                    }
-                });
-
-                console.log("Payload to be sent:", JSON.stringify(rulesPayload, null, 2));
-                alert("Check the browser's console (F12) to see the data object that will be sent to the API.");
-
-                btn.prop('disabled', true).text('Saving...');
-                const urlWithParam = `${apiSaveRulesUrl}?Tableid=${lookupId}`;
-
-                
-                fetch(urlWithParam, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(rulesPayload)
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error('API Error: ' + res.statusText);
-                    return res.json();
-                })
-                .then(data => {
-                    alert('Rules saved successfully!');
-                    detailContainer.slideUp().empty();
-                    $('.row-selected').removeClass('row-selected');
-                })
-                .catch(err => alert('Error: Could not save rules. ' + err.message))
-                .finally(() => btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules'));
-               
-                setTimeout(() => { btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules'); }, 1000);
-            });
-
-            // CASCADING DROPDOWN LOGIC (MODIFIED to return a promise)
-            function populateCategoryDropdown(parentId, targetDropdown) {
-                return new Promise((resolve, reject) => {
-                    const url = parentId ? `${apiCategoriesUrl}?parentId=${parentId}` : apiCategoriesUrl;
-                    const dropdown = $(targetDropdown);
-                    dropdown.html('<option>Loading...</option>').prop('disabled', true);
-                    fetch(url)
-                        .then(res => res.json())
-                        .then(data => {
-                            dropdown.html('<option value="">Choose...</option>');
-                            if (data && data.length > 0) {
-                                data.forEach(item => dropdown.append(`<option value="${item.id}">${item.name}</option>`));
-                                dropdown.prop('disabled', false);
-                            } else {
-                                dropdown.html('<option value="">No options</option>');
-                            }
-                            resolve();
-                        })
-                        .catch(err => {
-                            dropdown.html('<option>Error</option>');
-                            console.error("Failed to load categories:", err);
-                            reject(err);
-                        });
-                });
-            }
-
-            $(document).on('change', '.cat1-dropdown', function() {
-                const parentId = $(this).val();
-                const row = $(this).closest('tr');
-                const cat2 = row.find('.cat2-dropdown');
-                const cat3 = row.find('.cat3-dropdown');
-                cat2.html('<option>...</option>').prop('disabled', true);
-                cat3.html('<option>...</option>').prop('disabled', true);
-                if (parentId) populateCategoryDropdown(parentId, cat2);
-            });
-
-            $(document).on('change', '.cat2-dropdown', function() {
-                const parentId = $(this).val();
-                const row = $(this).closest('tr');
-                const cat3 = row.find('.cat3-dropdown');
-                cat3.html('<option>...</option>').prop('disabled', true);
-                if (parentId) populateCategoryDropdown(parentId, cat3);
-            });
-
-             // HELPER FUNCTIONS (Unchanged)
-            const supplierMapping = {
-                "Cannondale": "0", "Cube": "1", "Frog": "2", "Giant": "3", "Haibike": "4",
-                "Lapierre": "5", "Liv": "6", "Marin": "7", "Merida": "8", "Orbea": "9",
-                "Raleigh": "10", "Specialized": "11", "Tern": "12", "Trek": "13", "Whyte": "14"
-            };
-            function getSupplierNameFromValue(val) {
-                if (val === null || val === undefined) return '';
-                const s = String(val).trim();
-                const rev = Object.fromEntries(Object.entries(supplierMapping).map(([k, v]) => [v, k]));
-                return rev[s] ?? s;
-            }
-            function getSupplierFeedValue(input) {
-                const t = (input ?? '').toString().trim();
-                if (!t) return '';
-                const direct = Object.keys(supplierMapping).find(k => k.toLowerCase() === t.toLowerCase());
-                if (direct) return supplierMapping[direct];
-                return '';
-            }
-        });
-    </script>
-}
- *@
-
-
-
-
-
-@* @{
-    ViewData["Title"] = "Maintain Lookup Tables";
-}
-
-<div class="container-fluid px-0">
-    <h4 class="fw-bold mb-2">CATEGORIZATION</h4>
-    <p class="text-muted">Maintain Lookup Tables</p>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="mb-0">Create Lookup Tables</h6>
-        <button class="btn btn-primary btn-sm btn-add-lookup"><i class="fa fa-plus"></i></button>
-    </div>
-</div>
-
-<div class="lookup-tables-container">
-    <div class="card">
-        <div class="card-body p-0">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="p-3 sortable">Table Name <i class="fa-solid fa-sort ms-1"></i></th>
-                        <th class="p-3">Supplier Feed</th>
-                        <th class="p-3 sortable">Columns <i class="fa-solid fa-sort ms-1"></i></th>
-                        <th class="p-3 sortable">Categorization <i class="fa-solid fa-sort ms-1"></i></th>
-                        <th class="p-3">Active</th>
-                        <th class="p-3">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="lookup-table-body">
-                    <tr>
-                        <td colspan="6" class="text-center p-5">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div id="detail-grid-container" class="mt-4" style="display: none;">
-</div>
-
-<div class="modal fade" id="lookupModal" tabindex="-1" aria-labelledby="lookupModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 shadow">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" id="lookupModalLabel">New Lookup Table</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Table Name:</label>
-                    <input type="text" id="tableName" class="form-control" placeholder="Enter Table Name">
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Supplier Feed:</label>
-                    <select id="supplierFeed" class="form-select">
-                        <option value="">Choose Supplier Feed...</option>
-                        <option value="0">Cannondale</option>
-                        <option value="1">Cube</option>
-                        <option value="2">Frog</option>
-                        <option value="3">Giant</option>
-                        <option value="4">Haibike</option>
-                        <option value="5">Lapierre</option>
-                        <option value="6">Liv</option>
-                        <option value="7">Marin</option>
-                        <option value="8">Merida</option>
-                        <option value="9">Orbea</option>
-                        <option value="10">Raleigh</option>
-                        <option value="11">Specialized</option>
-                        <option value="12">Tern</option>
-                        <option value="13">Trek</option>
-                        <option value="14">Whyte</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Categorisation:</label>
-                    <select id="categorisation" class="form-select">
-                        <option value="">Select Categories...</option>
-                        <option value="Categories">Categories</option>
-                        <option value="Search 1/2">Search 1/2</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Columns:</label>
-                    <div id="columnsContainer" class="border rounded p-2" style="max-height:200px; overflow:auto;">
-                        <p class="text-muted small">Select supplier first to load columns...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="btnCreateLookup" class="btn btn-primary">Create</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <style>
-        #lookup-table-body tr {
-            cursor: pointer;
-        }
-
-        #lookup-table-body tr.row-selected {
-            background-color: #e9ecef !important;
-        }
-    </style>
-
-    <script>
-        $(document).ready(function () {
-            const apiLookupUrl = "https://simapi.runasp.net/api/Category/GetCategoryLookups";
-            const apiCreateUrl = "https://simapi.runasp.net/api/Category/AddCategoryLookupAsync";
-            const apiUpdateUrl = "https://simapi.runasp.net/api/Category/UpdateCategoryLookupAsync";
-            const apiDeleteUrl = "https://simapi.runasp.net/api/Category/DeleteCategoryLookupAsync";
-            const apiColumnsUrl = "https://simapi.runasp.net/api/Category/GetSupplierColumns";
-            const apiCategoriesUrl = "https://simapi.runasp.net/api/Category/GetCategoryByParentId";
-            // NEW: Add your API endpoint for saving the detail row data
-            const apiSaveDetailUrl = "https://simapi.runasp.net/api/Category/SaveCategoryMapAsync";
-
-
-            const tableBody = $('#lookup-table-body');
-            let editId = null;
-
-            // ... (All other functions from the previous response remain here unchanged) ...
-            // ======================
-            // LOAD LOOKUP TABLES
-            // ======================
-            function loadLookupTables() {
-                $('#detail-grid-container').hide().empty();
-                fetch(apiLookupUrl)
-                    .then(res => res.json())
-                    .then(data => {
-                        tableBody.empty();
-                        if (!data || data.length === 0) {
-                            tableBody.html('<tr><td colspan="6" class="text-center p-4">No lookup tables found.</td></tr>');
-                            return;
-                        }
-
-                        data.forEach(item => {
-                            const supplierDisplay = getSupplierNameFromValue(item.supplierFeed);
-                            tableBody.append(`
-                                <tr data-id="${item.id}">
-                                    <td class="p-3">${item.tableName}</td>
-                                    <td class="p-3">${supplierDisplay}</td>
-                                    <td class="p-3">${item.supplierColumns}</td>
-                                    <td class="p-3">${item.categorisation}</td>
-                                    <td class="p-3">
-                                        <input class="form-check-input isActiveCheckbox" type="checkbox" ${item.isActive ? 'checked' : ''} disabled>
-                                    </td>
-                                    <td class="p-3">
-                                        <a href="#" class="edit-lookup" title="Edit"><i class="fa-solid fa-pen"></i></a>
-                                        <a href="#" class="delete-lookup ms-2" title="Delete"><i class="fa-solid fa-trash-can"></i></a>
-                                    </td>
-                                </tr>
-                            `);
-                        });
-                    })
-                    .catch(() => {
-                        tableBody.html('<tr><td colspan="6" class="text-center text-danger p-4">Failed to load data.</td></tr>');
-                    });
-            }
-
-            loadLookupTables();
-             // ======================
-            // OPEN MODAL FOR CREATE
-            // ======================
-            $('.btn-add-lookup').on('click', function () {
-                editId = null;
-                $('#lookupModalLabel').text('New Lookup Table');
-                $('#btnCreateLookup').text('Create Lookup');
-                resetModal();
-                $('#lookupModal').modal('show');
-            });
-
-            function resetModal() {
-                $('#tableName').val('');
-                $('#supplierFeed').val('');
-                $('#categorisation').val('');
-                $('#columnsContainer').html('<p class="text-muted small">Select supplier first to load columns...</p>');
-                $('#btnCreateLookup').prop('disabled', false);
-            }
-
-            // ======================
-            // LOAD SUPPLIER COLUMNS
-            // ======================
-            $('#supplierFeed').on('change', function () {
-                const supplierId = $(this).val();
-                const container = $('#columnsContainer');
-                container.html('<p class="text-muted small">Loading columns...</p>');
-
-                if (!supplierId) {
-                    container.html('<p class="text-muted small">Select supplier first to load columns...</p>');
-                    return;
-                }
-
-                fetch(`${apiColumnsUrl}?supplier=${supplierId}`)
-                    .then(res => res.json())
-                    .then(columns => {
-                        if (!columns || columns.length === 0) {
-                            container.html('<p class="text-muted small text-danger">No columns found for this supplier.</p>');
-                            return;
-                        }
-
-                        let html = `
-                            <div class="form-check mb-2">
-                                <input type="checkbox" id="selectAllCols" class="form-check-input">
-                                <label for="selectAllCols" class="form-check-label fw-bold">Select All</label>
-                            </div>
-                        `;
-
-                        columns.forEach(col => {
-                            html += `
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input column-check" value="${col}">
-                                    <label class="form-check-label">${col}</label>
-                                </div>`;
-                        });
-
-                        container.html(html);
-
-                        $('#selectAllCols').on('change', function () {
-                            container.find('.column-check').prop('checked', this.checked);
-                        });
-                        
-                        if (editId && Array.isArray(window.editSelectedColumns)) {
-                            setTimeout(() => {
-                                container.find('.column-check').each(function () {
-                                    if (window.editSelectedColumns.includes($(this).val())) {
-                                        $(this).prop('checked', true);
-                                    }
-                                });
-                            }, 50);
-                        }
-                    })
-                    .catch(() => {
-                        container.html('<p class="text-danger small">Error loading columns.</p>');
-                    });
-            });
-            // ======================
-            // CREATE OR UPDATE LOOKUP TABLE
-            // ======================
-            $('#btnCreateLookup').on('click', function () {
-                const tableName = $('#tableName').val()?.trim();
-                const supplierFeed = $('#supplierFeed').val();
-                const categorisation = $('#categorisation').val();
-                const selectedColumns = $('#lookupModal .column-check:checked').map(function () {
-                    return $(this).val();
-                }).get();
-                const isActive = true; // Default to true on create/update
-
-                if (!tableName || !supplierFeed || !categorisation || selectedColumns.length === 0) {
-                    alert('⚠️ Please fill all required fields.');
-                    return;
-                }
-
-                const payload = {
-                    id: editId || 0,
-                    tableName,
-                    supplierFeed: parseInt(supplierFeed),
-                    categorisation,
-                    supplierColumns: selectedColumns.join(', '),
-                    isActive
-                };
-
-                const url = editId ? `${apiUpdateUrl}/${editId}` : apiCreateUrl;
-                const method = editId ? "PUT" : "POST";
-                $('#btnCreateLookup').prop('disabled', true).text(editId ? 'Saving...' : 'Creating...');
-
-                fetch(url, {
-                    method: method,
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                })
-                    .then(res => {
-                        if (!res.ok) throw new Error(editId ? "Failed to update" : "Failed to create");
-                        return res.json();
-                    })
-                    .then(() => {
-                        $('#lookupModal').modal('hide');
-                        loadLookupTables();
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert(err.message);
-                    })
-                    .finally(() => {
-                        $('#btnCreateLookup').prop('disabled', false).text(editId ? 'Save Changes' : 'Create Lookup');
-                    });
-            });
-
-            // ======================
-            // EDIT LOOKUP TABLE
-            // ======================
-            $(document).on('click', '.edit-lookup', function (e) {
-                e.preventDefault();
-                const row = $(this).closest('tr');
-                editId = row.data('id');
-
-                $('#lookupModalLabel').text('Edit Lookup Table');
-                $('#btnCreateLookup').text('Save Changes');
-
-                $('#tableName').val(row.find('td:nth-child(1)').text().trim());
-                $('#categorisation').val(row.find('td:nth-child(4)').text().trim());
-                
-                window.editSelectedColumns = row.find('td:nth-child(3)').text().split(',').map(c => c.trim()).filter(Boolean);
-
-                const supplierText = row.find('td:nth-child(2)').text().trim();
-                const supplierValue = getSupplierFeedValue(supplierText);
-
-                $('#lookupModal').modal('show');
-
-                $('#lookupModal').off('shown.bs.modal').on('shown.bs.modal', function () {
-                    if (supplierValue !== '') {
-                        $('#supplierFeed').val(supplierValue).trigger('change');
-                    } else {
-                        $('#supplierFeed').val('').trigger('change');
-                    }
-                });
-            });
-
-            // ======================
-            // DELETE LOOKUP TABLE
-            // ======================
-            $(document).on('click', '.delete-lookup', function (e) {
-                e.preventDefault();
-                const row = $(this).closest('tr');
-                const id = row.data('id');
-
-                if (!confirm('Are you sure you want to delete this lookup table?')) return;
-
-                fetch(`${apiDeleteUrl}/${id}`, { method: "DELETE" })
-                    .then(res => {
-                        if (!res.ok) throw new Error("Failed to delete");
-                        loadLookupTables();
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert(err.message);
-                    });
-            });
-            // ===============================
-            // MODIFIED: ROW CLICK TO SHOW DETAIL GRID WITH INPUTS
-            // ===============================
-            $(document).on('click', '#lookup-table-body tr', function (e) {
-                if ($(e.target).closest('a').length) {
-                    return;
-                }
-                const detailContainer = $('#detail-grid-container');
-                if ($(this).hasClass('row-selected')) {
-                    $(this).removeClass('row-selected');
-                    detailContainer.slideUp(() => $(this).empty());
-                    return;
-                }
-                $('#lookup-table-body tr').removeClass('row-selected');
-                $(this).addClass('row-selected');
-
-                // 1. Get data
-                const lookupId = $(this).data('id');
-                const tableName = $(this).find('td:nth-child(1)').text().trim();
-                const supplierColumnsText = $(this).find('td:nth-child(3)').text().trim();
-                const categorisation = $(this).find('td:nth-child(4)').text().trim();
-
-                // 2. Prepare headers and input row cells
-                let dynamicColumns = supplierColumnsText ? supplierColumnsText.split(',').map(c => c.trim()) : [];
-                let fixedColumns = [];
-                let headersHtml = '';
-                let inputsHtml = '';
-
-                // Build cells for DYNAMIC columns
-                dynamicColumns.forEach(col => {
-                    headersHtml += `<th class="p-2">${col}</th>`;
-                    inputsHtml += `
-                        <td class="p-2" data-column-name="${col}" data-is-dynamic-rule="true">
-                            <div class="input-group input-group-sm">
-                                <select class="form-select operator-dropdown" style="max-width: 120px;">
-                                    <option value="Contains">Contains</option>
-                                    <option value="StartsWith">Starts with</option>
-                                    <option value="Equals">Equals</option>
-                                    <option value="EndsWith">Ends with</option>
-                                    <option value="NotContains">Not contain</option>
-                                    <option value="NotEquals">Not equal</option>
-                                </select>
-                                <input type="text" class="form-control value-input">
-                            </div>
-                        </td>`;
-                });
-
-                // Build cells for FIXED columns based on categorisation
-                if (categorisation === 'Categories') {
-                    fixedColumns = ['Category1', 'Category2', 'Category3'];
-                    headersHtml += fixedColumns.map(c => `<th class="p-2">${c}</th>`).join('');
-                    inputsHtml += `
-                        <td class="p-2" data-column-name="Category1" data-is-dynamic-rule="false"><select id="cat1-dropdown" class="form-select form-select-sm"><option value="">Choose...</option></select></td>
-                        <td class="p-2" data-column-name="Category2" data-is-dynamic-rule="false"><select id="cat2-dropdown" class="form-select form-select-sm" disabled><option value="">Choose...</option></select></td>
-                        <td class="p-2" data-column-name="Category3" data-is-dynamic-rule="false"><select id="cat3-dropdown" class="form-select form-select-sm" disabled><option value="">Choose...</option></select></td>
-                    `;
-                } else if (categorisation === 'Search 1/2') {
-                    fixedColumns = ['Model', 'Brand Name'];
-                    headersHtml += fixedColumns.map(c => `<th class="p-2">${c}</th>`).join('');
-                    inputsHtml += `
-                        <td class="p-2" data-column-name="Model" data-is-dynamic-rule="false"><input type="text" class="form-control form-control-sm value-input"></td>
-                        <td class="p-2" data-column-name="BrandName" data-is-dynamic-rule="false"><input type="text" class="form-control form-control-sm value-input"></td>
-                    `;
-                }
-                
-                // 3. Assemble the final HTML for the grid
-                let detailHtml = `
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Create Rule for: ${tableName}</h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-bordered mb-0">
-                                    <thead class="table-light">
-                                        <tr>${headersHtml}</tr>
-                                    </thead>
-                                    <tbody id="detail-entry-body">
-                                        <tr>${inputsHtml}</tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="card-footer text-end">
-                            <button id="btnSaveDetail" class="btn btn-success btn-sm" data-lookup-id="${lookupId}">
-                                <i class="fa-solid fa-check me-1"></i> Save Rule
-                            </button>
-                        </div>
-                    </div>`;
-
-                // 4. Inject, show, and populate initial data
-                detailContainer.html(detailHtml).slideDown();
-                
-                if (categorisation === 'Categories') {
-                    populateCategoryDropdown(null, '#cat1-dropdown');
-                }
-            });
-
-            // ===============================
-            // CASCADING DROPDOWN LOGIC
-            // ===============================
-            function populateCategoryDropdown(parentId, targetDropdownSelector) {
-                const url = parentId ? `${apiCategoriesUrl}?parentId=${parentId}` : apiCategoriesUrl;
-                const dropdown = $(targetDropdownSelector);
-                
-                dropdown.html('<option value="">Loading...</option>').prop('disabled', true);
-
-                fetch(url)
-                    .then(res => res.json())
-                    .then(data => {
-                        dropdown.html('<option value="">Choose...</option>');
-                        if (data && data.length > 0) {
-                            data.forEach(item => {
-                                dropdown.append(`<option value="${item.id}">${item.name}</option>`);
-                            });
-                            dropdown.prop('disabled', false);
-                        } else {
-                             dropdown.html('<option value="">No options</option>');
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Failed to load categories:", err);
-                        dropdown.html('<option value="">Error</option>');
-                    });
-            }
-
-            $(document).on('change', '#cat1-dropdown', function() {
-                const parentId = $(this).val();
-                $('#cat2-dropdown, #cat3-dropdown').html('<option value="">Choose...</option>').prop('disabled', true);
-                if (parentId) {
-                    populateCategoryDropdown(parentId, '#cat2-dropdown');
-                }
-            });
-
-            $(document).on('change', '#cat2-dropdown', function() {
-                const parentId = $(this).val();
-                 $('#cat3-dropdown').html('<option value="">Choose...</option>').prop('disabled', true);
-                if (parentId) {
-                    populateCategoryDropdown(parentId, '#cat3-dropdown');
-                }
-            });
-            
-
-            // ======================================================
-            // MODIFIED: SAVE DETAIL ROW LOGIC WITH SPECIFIC JSON
-            // ======================================================
-            $(document).on('click', '#btnSaveDetail', function() {
-                const btn = $(this);
-                 const Tableid = parseInt($(this).data('lookup-id'));
-                // 1. Initialize the payload with the required structure
-                let payload = {
-                    id: 0, // This is for a new rule, so ID is 0
-                    //lookupId: parseInt($(this).data('lookup-id')), // The ID of the main lookup table
-                    dynamicProperties: []
-                };
-
-                // 2. Iterate over each input cell in the detail row
-                $('#detail-entry-body td[data-column-name]').each(function() {
-                    const cell = $(this);
-                    const colName = cell.data('column-name');
-                    const isDynamicRule = cell.data('is-dynamic-rule');
-                    let value, filter, columnType;
-
-                    if (isDynamicRule) {
-                        // This is a dynamic column with a filter dropdown and textbox
-                        value = cell.find('.value-input').val()?.trim();
-                        filter = cell.find('.operator-dropdown').val();
-                        columnType = 0; // Type 0 for dynamic filter rules
-                    } else {
-                        // This is a fixed assignment column (category dropdown or textbox)
-                        value = cell.find('.value-input, .form-select').val()?.trim();
-                        filter = "Equals"; // Fixed assignments use 'Equals' by default
-                        columnType = 1; // Type 1 for fixed assignment rules
-                    }
-                    
-                    // 3. Only add the property to the payload if a value has been entered
-                    if (value) {
-                        payload.dynamicProperties.push({
-                            columnName: colName,
-                            value: value,
-                            filter: filter,
-                            columnType: columnType
-                        });
-                    }
-                });
-
-                console.log("Payload to be sent:", JSON.stringify(payload, null, 2));
-                console.log("Lookup ID sent as parameter:", Tableid);
-                alert("Check the browser's console (F12) to see the data object that will be sent to the API.");
-                
-                // 4. Send to API (Example)
-                btn.prop('disabled', true).text('Saving...');
-                const urlWithParam = `${apiSaveDetailUrl}?Tableid=${Tableid}`;
-                
-               // UNCOMMENT THIS BLOCK WHEN YOUR API IS READY
-                fetch(urlWithParam, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error('API Error: ' + res.statusText);
-                    return res.json();
-                })
-                .then(data => {
-                    console.log('Save successful:', data);
-                    alert('Rule saved successfully!');
-                    $('#detail-grid-container').slideUp().empty();
-                    $('.row-selected').removeClass('row-selected');
-                })
-                .catch(err => {
-                    console.error('Save failed:', err);
-                    alert('Error: Could not save the rule. ' + err.message);
-                })
-                .finally(() => {
-                    btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save Rule');
-                });
-                
-                 // Remove this line when you uncomment the fetch block
-                 //setTimeout(() => { btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save Rule'); }, 1000);
-            });
-
-            // ======================
-            // HELPER FUNCTIONS
-            // ======================
-            const supplierMapping = {
-                "Cannondale": "0", "Cube": "1", "Frog": "2", "Giant": "3", "Haibike": "4",
-                "Lapierre": "5", "Liv": "6", "Marin": "7", "Merida": "8", "Orbea": "9",
-                "Raleigh": "10", "Specialized": "11", "Tern": "12", "Trek": "13", "Whyte": "14"
-            };
-
-            function getSupplierNameFromValue(val) {
-                if (val === null || val === undefined) return '';
-                const s = String(val).trim();
-                const rev = Object.fromEntries(Object.entries(supplierMapping).map(([k, v]) => [v, k]));
-                return rev[s] ?? s;
-            }
-
-            function getSupplierFeedValue(input) {
-                const t = (input ?? '').toString().trim();
-                if (!t) return '';
-                const direct = Object.keys(supplierMapping).find(k => k.toLowerCase() === t.toLowerCase());
-                if (direct) return supplierMapping[direct];
-                return '';
-            }
-        });
-    </script>
-}
-
- *@
-
-
 
 

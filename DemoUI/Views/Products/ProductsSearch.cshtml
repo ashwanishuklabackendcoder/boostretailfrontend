@@ -1,0 +1,230 @@
+﻿@model ProductSearchViewModel
+@{
+    ViewData["Title"] = "Product Search";
+}
+
+<h3>Product Search</h3>
+<hr />
+
+<!-- Filters -->
+<div class="row mb-3">
+    <div class="col">
+        <label>Suppliers</label>
+        <select id="supplierDropdown" class="form-control">
+            <option value="">-- Select Supplier --</option>
+        </select>
+    </div>
+    <div class="col">
+        <label>Year</label>
+        <select id="yearDropdown" class="form-control">
+            <option value="">-- Select Year --</option>
+        </select>
+    </div>
+    <div class="col">
+        <label>Brands</label>
+        <select id="brandDropdown" class="form-control">
+            <option value="">-- Select Brand --</option>
+        </select>
+    </div>
+    <div class="col">
+        <label>Categories</label>
+        <select id="categoryDropdown" class="form-control">
+            <option value="">-- Select Category --</option>
+        </select>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <label>MPN</label>
+        <input id="mpnInput" class="form-control" placeholder="MPN" />
+    </div>
+    <div class="col">
+        <label>Barcode</label>
+        <input id="barcodeInput" class="form-control" placeholder="Barcode" />
+    </div>
+    <div class="col">
+        <label>Title</label>
+        <input id="titleInput" class="form-control" placeholder="Title" />
+    </div>
+    <div class="col">
+        <label> </label>
+        <button id="searchBtn" class="btn btn-primary w-100">Search</button>
+    </div>
+</div>
+
+<!-- Products Table -->
+<table class="table table-bordered" id="productsTable">
+    <thead>
+        <tr>
+            <th><input type="checkbox" id="selectAll" /></th>
+            <th>MPN</th>
+            <th>Title</th>
+            <th>Brand</th>
+            <th>Category1</th>
+            <th>Category2</th>
+            <th>Category3</th>
+            <th>Colour</th>
+            <th>Size</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Save Button -->
+<div class="text-end mb-5">
+    <button id="saveBtn" class="btn btn-success">Save Selected Products</button>
+</div>
+
+<script>
+const categoriesApi = "https://simapi.runasp.net/api/Category/GetCategoryByParentId";
+const brandsBySupplierApi = "https://simapi.runasp.net/api/Catalogue/Brands"; 
+const productsApi = "https://simapi.runasp.net/api/Catalogue/SearchProducts";
+const saveProductsApi = "https://simapi.runasp.net/api/Catalogue/SaveProducts"; // Your API endpoint
+
+// Static suppliers list
+const suppliers = [
+    { id: 1, name: "Giant" },
+    { id: 2, name: "Trek" },
+    { id: 3, name: "Specialized" },
+    { id: 4, name: "Raleigh" },
+    { id: 5, name: "Whyte" },
+    { id: 6, name: "Madison" },
+    { id: 7, name: "Cube" },
+    { id: 8, name: "Sportline" }
+];
+
+async function loadDropdowns() {
+    const supplierDropdown = document.getElementById("supplierDropdown");
+    suppliers.forEach(s => supplierDropdown.add(new Option(s.name, s.id)));
+
+    const yearDropdown = document.getElementById("yearDropdown");
+    const currentYear = new Date().getFullYear();
+    for (let year = 2018; year <= currentYear; year++) {
+        yearDropdown.add(new Option(year, year));
+    }
+
+    try {
+        const categories = await fetch(categoriesApi).then(r => r.json());
+        const categoryDropdown = document.getElementById("categoryDropdown");
+        categories.forEach(c => categoryDropdown.add(new Option(c.name, c.id)));
+    } catch (err) {
+        console.error("Error loading categories:", err);
+    }
+}
+
+async function loadBrandsBySupplier(supplierId, year) {
+    const brandDropdown = document.getElementById("brandDropdown");
+    brandDropdown.innerHTML = '<option value="">-- Select Brand --</option>';
+
+    if (!supplierId || !year) {
+        brandDropdown.disabled = true;
+        return;
+    }
+
+    brandDropdown.disabled = false;
+
+    try {
+        const response = await fetch(`${brandsBySupplierApi}?supplier=${supplierId}&year=${year}`);
+        const brands = await response.json();
+
+        if (Array.isArray(brands)) {
+            brands.forEach(name => {
+                brandDropdown.add(new Option(name, name));
+            });
+        } else {
+            console.warn("Unexpected brand response:", brands);
+        }
+    } catch (err) {
+        console.error("Error loading brands:", err);
+    }
+}
+
+async function searchProducts() {
+    const query = new URLSearchParams({
+        Supplier: document.getElementById("supplierDropdown").value,
+        BrandId: document.getElementById("brandDropdown").value,
+        CategoryId: document.getElementById("categoryDropdown").value,
+        Year: document.getElementById("yearDropdown").value,
+        MPN: document.getElementById("mpnInput").value,
+        Barcode: document.getElementById("barcodeInput").value,
+        Title: document.getElementById("titleInput").value
+    });
+
+    try {
+        const products = await fetch(`${productsApi}?${query}`).then(r => r.json());
+        const tbody = document.querySelector("#productsTable tbody");
+        tbody.innerHTML = "";
+
+        products.forEach((p, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><input type="checkbox" class="selectProduct" data-mpn="${p.mpn}" /></td>
+                    <td>${p.mpn}</td>
+                    <td>${p.title}</td>
+                    <td>${p.brand}</td>
+                    <td>${p.category1}</td>
+                    <td>${p.category2}</td>
+                    <td>${p.category3}</td>
+                    <td>${p.colour}</td>
+                    <td>${p.size}</td>
+                    <td>${p.price}</td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error("Error loading products:", err);
+    }
+}
+
+// Select all checkbox
+document.getElementById("selectAll").addEventListener("change", function () {
+    document.querySelectorAll(".selectProduct").forEach(cb => cb.checked = this.checked);
+});
+
+// Save selected products
+document.getElementById("saveBtn").addEventListener("click", async function () {
+    const selectedMPNs = Array.from(document.querySelectorAll(".selectProduct:checked"))
+        .map(cb => cb.dataset.mpn);
+
+    if (selectedMPNs.length === 0) {
+        alert("Please select at least one product.");
+        return;
+    }
+
+    try {
+        const response = await fetch(saveProductsApi, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(selectedMPNs)
+        });
+
+        if (response.ok) {
+            alert("Selected products saved successfully!");
+        } else {
+            const err = await response.text();
+            alert("Error saving products: " + err);
+        }
+    } catch (err) {
+        console.error("Save products error:", err);
+        alert("An error occurred while saving products.");
+    }
+});
+
+// Event listeners
+document.getElementById("searchBtn").addEventListener("click", searchProducts);
+document.getElementById("supplierDropdown").addEventListener("change", function () {
+    const supplierId = this.value;
+    const year = document.getElementById("yearDropdown").value;
+    loadBrandsBySupplier(supplierId, year);
+});
+document.getElementById("yearDropdown").addEventListener("change", function () {
+    const year = this.value;
+    const supplierId = document.getElementById("supplierDropdown").value;
+    loadBrandsBySupplier(supplierId, year);
+});
+
+loadDropdowns();
+</script>
+  

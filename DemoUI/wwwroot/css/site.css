@@ -305,3 +305,30 @@ html, body {
         }
     }
 }
+
+#productsTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#productsTable thead {
+    background-color: #f8f9fa;
+    position: sticky; /* Keep headers fixed */
+    top: 0;
+    z-index: 1;
+}
+
+#productsTable tbody {
+    display: block;
+    height: 400px; /* Fixed height */
+    overflow-y: auto; /* Enable vertical scroll */
+}
+
+    #productsTable thead,
+    #productsTable tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed; /* Ensure proper column width */
+    }
+
+

@@ -241,7 +241,7 @@ html, body {
         font-weight: 600;
         color: #555;
     }
-
+ 
         .table th.sortable {
             cursor: pointer;
         }
@@ -306,10 +306,10 @@ html, body {
     }
 }
 
-#productsTable {
+/*#productsTable {
     width: 100%;
     border-collapse: collapse;
-}
+}*/
 
 #productsTable thead {
     background-color: #f8f9fa;

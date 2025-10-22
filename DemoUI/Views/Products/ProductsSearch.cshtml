@@ -184,33 +184,64 @@ document.getElementById("selectAll").addEventListener("change", function () {
 });
 
 // Save selected products
-document.getElementById("saveBtn").addEventListener("click", async function () {
-    const selectedMPNs = Array.from(document.querySelectorAll(".selectProduct:checked"))
-        .map(cb => cb.dataset.mpn);
+// document.getElementById("saveBtn").addEventListener("click", async function () {
+//     const selectedMPNs = Array.from(document.querySelectorAll(".selectProduct:checked"))
+//         .map(cb => cb.dataset.mpn);
 
-    if (selectedMPNs.length === 0) {
-        alert("Please select at least one product.");
-        return;
-    }
+//     if (selectedMPNs.length === 0) {
+//         alert("Please select at least one product.");
+//         return;
+//     }
 
-    try {
-        const response = await fetch(saveProductsApi, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(selectedMPNs)
+//     try {
+//         const response = await fetch(saveProductsApi, {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify(selectedMPNs)
+//         });
+
+//         if (response.ok) {
+//             alert("Selected products saved successfully!");
+//         } else {
+//             const err = await response.text();
+//             alert("Error saving products: " + err);
+//         }
+//     } catch (err) {
+//         console.error("Save products error:", err);
+//         alert("An error occurred while saving products.");
+//     }
+// });
+    document.getElementById("saveBtn").addEventListener("click", async function () {
+        debugger;
+        const selectedProducts = Array.from(document.querySelectorAll(".selectProduct:checked")).map(cb => {
+            const row = cb.closest("tr");
+            return {
+                MPN: cb.dataset.mpn,
+                ProductPrice: parseFloat(row.children[9].innerText), // Price column index
+                PShortDes: row.children[2].innerText // Use title as short description
+            };
         });
 
-        if (response.ok) {
-            alert("Selected products saved successfully!");
-        } else {
-            const err = await response.text();
-            alert("Error saving products: " + err);
+        if (selectedProducts.length === 0) {
+            alert("Please select at least one product.");
+            return;
         }
-    } catch (err) {
-        console.error("Save products error:", err);
-        alert("An error occurred while saving products.");
-    }
-});
+
+        try {
+                const token = localStorage.getItem("JWToken");
+                const response = await fetch(saveProductsApi, {
+                method: "POST",
+                headers: { "Content-Type": "application/json","Authorization": `Bearer ${token}` },
+                body: JSON.stringify(selectedProducts)
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        } catch (err) {
+            console.error("Error saving products:", err);
+            alert("An error occurred while saving products.");
+        }
+    });
 
 // Event listeners
 document.getElementById("searchBtn").addEventListener("click", searchProducts);

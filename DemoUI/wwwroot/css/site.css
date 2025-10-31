@@ -23,6 +23,7 @@ html, body {
 
     .navbar {
         margin-bottom: 0;
+        background-color: #000000;
     }
 
     /* Button & input focus */

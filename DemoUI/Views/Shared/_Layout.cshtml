@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var role = Context.Session.GetString("UserRole");
+    var username = Context.Session.GetString("Username");
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -36,16 +40,37 @@
             </div>
 
             <!-- Navbar -->
-            <nav class="navbar navbar-expand-sm navbar-light bg-dark p-0 flex-grow-1">
+            <nav class="navbar navbar-expand-sm navbar-light p-0 flex-grow-1">
                 <div class="container-fluid p-0">
-                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                        <ul class="navbar-nav flex-grow-1">
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">
-                                    Super Admin
-                                </a>
-                            </li>
-                        </ul>
+                    <div class="d-flex align-items-center text-white ">
+                        &nbsp;<strong>Dashboard</strong> 
+                        <div class="vr mx-3"></div>
+                        <div class="d-flex flex-column lh-1">
+
+                            <i class="fa fa-user me-2"></i>
+
+                        </div>
+                        <div class="d-flex flex-column lh-1" >
+                           
+                            
+                            
+                            <span> <strong>Access:</strong> @role</span>
+                            <span> <strong>Username:</strong> @username</span>
+                           
+                        </div>
+
+                    </div>
+                    <div class="d-flex align-items-center text-white small">
+                        
+                        <i class="fa fa-chart-bar me-2"></i>
+                        <i class="fa fa-shopping-cart me-2"></i>
+                        <i class="fa fa-credit-card me-2"></i>
+                        <i class="fa fa-wrench me-2"></i>
+                        <i class="fa fa-shield me-2"></i>
+                        <i class="fa fa-clipboard me-2"></i>
+                        <i class="fa fa-gear me-2"></i>
+                      
+                        
                     </div>
                 </div>
             </nav>
@@ -58,7 +83,7 @@
             <!-- Sidebar -->
             <aside id="sidebar"
                    class="bg-primary text-light d-flex flex-column align-items-center position-relative"
-                   style="width:75px; height:93vh; overflow:hidden; transition: all 0.3s;">
+                   style="width:75px; height:100vh; overflow:hidden; transition: all 0.3s;">
 
                 <!-- Dashboard -->
                 <a asp-controller="Home" asp-action="Index"
@@ -66,86 +91,97 @@
                    title="Dashboard">
                     <i class="fa-solid fa-house fa-lg"></i>
                 </a>
+                @if (role != "User")
+                {
+                    <!-- SIM Icon -->
+                    <div class="position-relative my-3">
+                        <a href="javascript:void(0)"
+                        class="text-light d-block"
+                        id="simMenuBtn"
+                        title="SIM">
+                            <i class="fa-solid fa-database fa-lg"></i>
+                        </a>
 
-                <!-- SIM Icon -->
-                <div class="position-relative my-3">
-                    <a href="javascript:void(0)"
-                       class="text-light d-block"
-                       id="simMenuBtn"
-                       title="SIM">
-                        <i class="fa-solid fa-database fa-lg"></i>
-                    </a>
+                        <!-- SIM Flyout Submenu -->
+                        <div id="simSubMenu"
+                        class="bg-white text-dark shadow position-absolute start-100 top-0 p-3 rounded"
+                        style="min-width:260px; display:none; z-index:9999;">
 
-                    <!-- SIM Flyout Submenu -->
-                    <div id="simSubMenu"
-                         class="bg-white text-dark shadow position-absolute start-100 top-0 p-3 rounded"
-                         style="min-width:260px; display:none; z-index:9999;">
+                            <h6 class="fw-bold mb-3">SIM</h6>
 
-                        <h6 class="fw-bold mb-3">SIM</h6>
+                            <ul class="list-unstyled m-0">
+                                <!-- Supplier Feeds -->
+                                <li class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#supplierSub">
+                                        <span>Supplier Feeds</span>
+                                        <i class="fa-solid fa-chevron-down small"></i>
+                                    </div>
+                                    <ul id="supplierSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
+                                        <li><a asp-controller="Supplier" asp-action="Feeds" class="d-block text-dark py-1">Maintain Supplier Feeds</a></li>
 
-                        <ul class="list-unstyled m-0">
-                            <!-- Supplier Feeds -->
-                            <li class="mb-2">
-                                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#supplierSub">
-                                    <span>Supplier Feeds</span>
-                                    <i class="fa-solid fa-chevron-down small"></i>
-                                </div>
-                                <ul id="supplierSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
-                                    <li><a asp-controller="Supplier" asp-action="Feeds" class="d-block text-dark py-1">Maintain Supplier Feeds</a></li>
-                                    
-                                </ul>
-                            </li>
+                                    </ul>
+                                </li>
 
-                            <!-- Categorization -->
-                            <li class="mb-2">
-                                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#categorySub">
-                                    <span>Categorization</span>
-                                    <i class="fa-solid fa-chevron-down small"></i>
-                                </div>
-                                <ul id="categorySub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
-                                    <li><a asp-controller="Category" asp-action="MainTainCategory" class="d-block text-dark py-1">Maintain Categories</a></li>
-                                    <li><a asp-controller="Category" asp-action="MainLookupTabels" class="d-block text-dark py-1">Manintain Lookup Tabels</a></li>
-                                </ul>
-                            </li>
+                                <!-- Categorization -->
+                                <li class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#categorySub">
+                                        <span>Categorization</span>
+                                        <i class="fa-solid fa-chevron-down small"></i>
+                                    </div>
+                                    <ul id="categorySub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
+                                        <li><a asp-controller="Category" asp-action="MainTainCategory" class="d-block text-dark py-1">Maintain Categories</a></li>
+                                        <li><a asp-controller="Category" asp-action="MainLookupTabels" class="d-block text-dark py-1">Manintain Lookup Tabels</a></li>
+                                    </ul>
+                                </li>
 
-                            <!-- Sim Products -->
-                            <li class="mb-2">
-                                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#productSub">
-                                    <span>Sim Products</span>
-                                    <i class="fa-solid fa-chevron-down small"></i>
-                                </div>
-                                <ul id="productSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
-                                    <li><a asp-controller="SIM" asp-action="SIMProducts" class="d-block text-dark py-1">Maintain SIM Products</a></li>
-                             
-                                </ul>
-                            </li>
+                                <!-- Sim Products -->
+                                <li class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#productSub">
+                                        <span>Sim Products</span>
+                                        <i class="fa-solid fa-chevron-down small"></i>
+                                    </div>
+                                    <ul id="productSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
+                                        <li><a asp-controller="SIM" asp-action="SIMProducts" class="d-block text-dark py-1">Maintain SIM Products</a></li>
 
-                            <!-- Incorrect Data -->
-                            <li>
-                                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#incorrectSub">
-                                    <span>Incorrect Data</span>
-                                    <i class="fa-solid fa-chevron-down small"></i>
-                                </div>
-                                <ul id="incorrectSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
-                                    <li><a asp-controller="IncorrectData" asp-action="Index" class="d-block text-dark py-1">Misshing Categories</a></li>
-                                    <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Visual Category Checker</a></li>
-                                    <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Confliciting Categories</a></li>
-                                    <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Missing Product Data</a></li>
-                                    <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Missing Images</a></li>
-                                </ul>
-                            </li>
-                        </ul>
+                                    </ul>
+                                </li>
+
+                                <!-- Incorrect Data -->
+                                <li>
+                                    <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#incorrectSub">
+                                        <span>Incorrect Data</span>
+                                        <i class="fa-solid fa-chevron-down small"></i>
+                                    </div>
+                                    <ul id="incorrectSub" class="list-unstyled ms-3 mt-2 submenu-items" style="display:none;">
+                                        <li><a asp-controller="IncorrectData" asp-action="Index" class="d-block text-dark py-1">Missing Categories</a></li>
+@*                                         <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Visual Category Checker</a></li>
+                                        <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Confliciting Categories</a></li>
+                                        <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Missing Product Data</a></li> *@
+                                        <li><a asp-controller="IncorrectData" asp-action="Logs" class="d-block text-dark py-1">Missing Images</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Users -->
-                <a asp-controller="Products" asp-action="ProductsSearch" class="text-light my-3" title="Users">
-                    <i class="fa-solid fa-users fa-lg"></i>
-                </a>
-
+                }
+                else
+                {
+                    <!-- Users -->
+                    <a asp-controller="Products" asp-action="ProductsSearch" class="text-light my-3" title="Search">
+                        <i class="fa-solid fa-search fa-lg"></i>
+                    </a>
+                    <a asp-controller="Products" asp-action="UserProducts" class="text-light my-3" title="Products">
+                        <i class="fa-solid fa-box fa-lg"></i>
+                    </a>
+                }
+          
                 <!-- Setup -->
                 <a href="#" class="text-light my-3" title="Setup">
                     <i class="fa-solid fa-gear fa-lg"></i>
+                </a>
+
+                <a asp-controller="Account" asp-action="Logout" class="text-light my-3" title="Logout">
+                    <i class="fa-solid fa-sign-out fa-lg"></i>
                 </a>
             </aside>
 

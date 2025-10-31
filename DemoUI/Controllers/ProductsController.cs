@@ -17,4 +17,11 @@ public class ProductsController : Controller
 
         return View();
     }
+
+    [HttpGet]
+    public IActionResult UserProducts()
+    {
+
+        return View();
+    }
 }

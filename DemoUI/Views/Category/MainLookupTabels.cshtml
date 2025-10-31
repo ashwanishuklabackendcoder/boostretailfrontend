@@ -188,7 +188,7 @@
             // LOAD SUPPLIER COLUMNS
             // ======================
 
-                $('#supplierFeed').on('change', function () {
+            $('#supplierFeed').on('change', function () {
                 const supplierId = $(this).val();
                 const container = $('#columnsContainer');
                 container.html('<p class="text-muted small">Loading columns...</p>');
@@ -409,7 +409,7 @@
                 // `rule` can be a data object or null for a new row
                 rule = rule || { id: 0, dynamicProperties: [] };
                 let inputsHtml = '';
-
+                let actionButtons = '';
                 // Helper to find a property's value from the rule data
                 const getProp = (colName) => rule.dynamicProperties.find(p => p.columnName === colName) || {};
 
@@ -450,13 +450,28 @@
                         <td class="p-2" data-column-name="BrandName" data-is-dynamic-rule="false"><input type="text" class="form-control form-control-sm value-input" value="${brand.value || ''}"></td>
                     `;
                 }
+                if (rule.id === 0) {
+                // New unsaved row → Show Add and Delete
+                    actionButtons = `
+                        <button class="btn btn-success btn-sm btn-add-rule me-1"><i class="fa-solid fa-plus"></i></button>
+                        <button class="btn btn-secondary btn-sm btn-delete-rule" data-rule-id="0"><i class="fa-solid fa-times"></i></button>
+                    `;
+                }
+                else {
+                    // Existing rule → Show Edit and Delete
+                    actionButtons = `
+                        <button class="btn btn-primary btn-sm btn-edit-rule me-1" data-rule-id="${rule.id}"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-danger btn-sm btn-delete-rule" data-rule-id="${rule.id}"><i class="fa-solid fa-trash-can"></i></button>
+                    `;
+                }
 
-                // C. Add the Action cell with a delete button
-                const deleteButton = rule.id !== 0
-                    ? `<button class="btn btn-danger btn-sm btn-delete-rule" data-rule-id="${rule.id}"><i class="fa-solid fa-trash-can"></i></button>`
-                    : `<button class="btn btn-secondary btn-sm btn-delete-rule" data-rule-id="0"><i class="fa-solid fa-times"></i></button>`;
+                return `<tr class="rule-row" data-rule-id="${rule.id}">${inputsHtml}<td class="p-2 text-center align-middle">${actionButtons}</td></tr>`;
+                // // C. Add the Action cell with a delete button
+                // const deleteButton = rule.id !== 0
+                //     ? `<button class="btn btn-danger btn-sm btn-delete-rule" data-rule-id="${rule.id}"><i class="fa-solid fa-trash-can"></i></button>`
+                //     : `<button class="btn btn-secondary btn-sm btn-delete-rule" data-rule-id="0"><i class="fa-solid fa-times"></i></button>`;
 
-                return `<tr class="rule-row" data-rule-id="${rule.id}">${inputsHtml}<td class="p-2 align-middle text-center">${deleteButton}</td></tr>`;
+                // return `<tr class="rule-row" data-rule-id="${rule.id}">${inputsHtml}<td class="p-2 align-middle text-center">${deleteButton}</td></tr>`;
             }
 
             // This function handles the complex population of cascading dropdowns for an existing rule
@@ -488,11 +503,17 @@
             $(document).on('click', '#lookup-table-body tr', async function (e) {
                 if ($(e.target).closest('a').length) return;
                 const detailContainer = $('#detail-grid-container');
+                // if ($(this).hasClass('row-selected')) {
+                //     $(this).removeClass('row-selected');
+                //     detailContainer.slideUp(() => $(this).empty());
+                //     return;
+                // }
                 if ($(this).hasClass('row-selected')) {
-                    $(this).removeClass('row-selected');
-                    detailContainer.slideUp(() => $(this).empty());
+                    detailContainer.slideUp(); // ✅ capital "U"
+                    $(this).removeClass('row-selected'); // optional: unselect the row
                     return;
                 }
+
                 $('#lookup-table-body tr').removeClass('row-selected');
                 $(this).addClass('row-selected');
 
@@ -524,10 +545,12 @@
                                 </tbody>
                             </table>
                         </div></div>
-                        <div class="card-footer d-flex justify-content-between">
-                            <button id="btnAddNewRule" class="btn btn-info btn-sm"><i class="fa-solid fa-plus me-1"></i> Add New Rule</button>
-                            <button id="btnSaveAllRules" class="btn btn-success btn-sm" data-lookup-id="${lookupId}"><i class="fa-solid fa-check me-1"></i> Save All Rules</button>
-                        </div>
+                            <div class="card-footer">
+                                <button id="btnAddNewRule" class="btn btn-info btn-sm">
+                                    <i class="fa-solid fa-plus me-1"></i> Add New Rule
+                                </button>
+                            </div>
+
                     </div>`;
 
                 detailContainer.html(detailHtml).slideDown();
@@ -568,7 +591,7 @@
                 const supplierColumnsText = firstRow.find('td:nth-child(3)').text().trim();
                 const categorisation = firstRow.find('td:nth-child(4)').text().trim();
                 const allDynamicColumns = supplierColumnsText ? supplierColumnsText.split(',').map(c => c.trim()) : [];
-
+               
                 const newRowHtml = getRuleRowHtml(null, allDynamicColumns, categorisation);
                 const $newRow = $(newRowHtml);
                 $('#detail-entry-body').append($newRow);
@@ -600,122 +623,267 @@
                         });
                 }
             });
-            // ✅ CORRECTED to handle one operation type at a time (Add OR Edit)
-                  $(document).on('click', '#btnSaveAllRules', function() {
-            const btn = $(this);
-            const lookupId = parseInt(btn.data('table-id')); // The actual ID of the main lookup table
-            const rulesPayload = [];
-            let hasNewRule = false;
-            let hasExistingRule = false;
+            // ✅ Add new rule (individual)
+              $(document).on('click', '.btn-add-rule', function () {
+            const $row = $(this).closest('tr');
+            const tableIdToSend = $('#lookup-table-body tr.row-selected').data('id');
+            const ruleId=0;
+            const dynamicProperties = [];
 
-            // Gather all rule data from the UI
-            $('.rule-row').each(function() {
-                const row = $(this);
-                const ruleId = parseInt(row.data('rule-id')) || 0;
+            $row.find('td[data-column-name]').each(function () {
+                const cell = $(this);
+                const colName = cell.data('column-name');
+                let value = '';
+                let filter = 'Equals';
+                let columnType = 1;
 
-                // Skip rows without data
-                let hasData = false;
-                row.find('.value-input, .form-select').each(function() {
-                    if ($(this).val()) {
-                        hasData = true;
-                        return false; // Exit .each loop
-                    }
-                });
-                if (!hasData) return; // Continue to next .rule-row
+                if (cell.data('is-dynamic-rule')) {
+                    value = (cell.find('.value-input').val() || '').trim();
+                    filter = cell.find('.operator-dropdown').val() || 'Equals';
+                    columnType = 0;
+                } else {
+                    value = (cell.find('.value-input, .form-select').val() || '').trim();
+                }
 
-                let rule = {
-                    id: ruleId,
-                    dynamicProperties: []
-                };
-
-                // Determine operation type
-                if (ruleId === 0) hasNewRule = true;
-                else hasExistingRule = true;
-
-                // Process each cell with column data
-                row.find('td[data-column-name]').each(function() {
-                    const cell = $(this);
-                    const colName = cell.data('column-name');
-                    let value = null;
-                    let filter = 'Equals';
-                    let columnType = 1;
-
-                    if (cell.data('is-dynamic-rule')) {
-                        value = cell.find('.value-input').val()?.trim();
-                        filter = cell.find('.operator-dropdown').val() || 'Equals';
-                        columnType = 0;
-                    } else {
-                        value = cell.find('.value-input, .form-select').val()?.trim();
-                    }
-
-                    if (value) {
-                        rule.dynamicProperties.push({
-                            columnName: colName,
-                            value: value,
-                            filter: filter,
-                            columnType: columnType
-                        });
-                    }
-                });
-
-                if (rule.dynamicProperties.length > 0) {
-                    rulesPayload.push(rule);
+                if (value) {
+                    dynamicProperties.push({
+                        columnName: colName,
+                        value: value,
+                        filter: filter,
+                        columnType: columnType
+                    });
                 }
             });
 
-            // Enforce "one operation at a time" rule
-            if (hasNewRule && hasExistingRule) {
-                alert("You cannot add new rules and edit existing ones at the same time. Please save your changes for each operation separately.");
+            if (dynamicProperties.length === 0) {
+                alert("⚠️ Please fill some data before adding the rule.");
                 return;
             }
 
-            // Validate payload
-            if (rulesPayload.length === 0) {
-                alert("No rules with data have been entered or changed.");
-                return;
-            }
-
-            // Determine Tableid based on operation type
-            const tableIdToSend = hasNewRule ? lookupId : (hasExistingRule ? 0 : null);
-            if (tableIdToSend === null) return;
-
-            // Combine all dynamic properties of all rules into a single array
-            const allDynamicProperties = rulesPayload.flatMap(r => r.dynamicProperties);
-
-            // Log operation details
-            console.log("Operation Type:", hasNewRule ? "ADD" : "EDIT");
-            console.log("Payload to be sent:", JSON.stringify(allDynamicProperties, null, 2));
-            console.log("Tableid to send:", tableIdToSend);
-
-            // Disable button during API call
-            btn.prop('disabled', true).text('Saving...');
-
-            // Make API call
+            console.log("Payload to be sent:", JSON.stringify(dynamicProperties, null, 2));
+            console.log("Table ID to send:", tableIdToSend);
+            console.log("Rule ID to send:", ruleId);
+            // ✅ Save via API
             fetch(apiCatalogueSave, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    jsonRules: JSON.stringify(allDynamicProperties)
+                    lookupId: tableIdToSend,
+                    ruleId: 0,
+                    jsonRules: JSON.stringify(dynamicProperties)
                 })
             })
-            .then(res => {
-                if (!res.ok) throw new Error('API Error: ' + res.statusText);
-                return res.json();
-            })
-            .then(data => {
-                alert(`Processed successfully: ${data.processedCount || 0} records inserted into MasterProducts.`);
-            })
-            .catch(err => {
-                alert('Error: ' + err.message);
-            })
-            .finally(() => {
-                btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules');
-            });
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to save rule');
+                    return res.json();
+                })
+                .then(data => {
+                    alert('✅ Rule added successfully.');
+                    // Reload the rule list for this lookup
+                    $('#lookup-table-body tr.row-selected').trigger('click');
+                })
+                .catch(err => {
+                    console.error('Add rule error:', err);
+                    alert('❌ Error: ' + err.message);
+                });
         });
 
+               // ✅ Edit existing rule
+
+
+        $(document).on('click', '.btn-edit-rule', function () {
+            const $row = $(this).closest('tr');
+
+            // ✅ Rule ID (for updating)
+            const ruleId = parseInt($row.data('rule-id')) || 0;
+
+            // ✅ Lookup ID (table) from selected lookup row
+            const lookupId = $('#lookup-table-body tr.row-selected').data('id');
+
+            const dynamicProperties = [];
+
+            // ✅ Collect all column values from the row
+            $row.find('td[data-column-name]').each(function () {
+                const cell = $(this);
+                const colName = cell.data('column-name');
+                let value = '';
+                let filter = 'Equals';
+                let columnType = 1;
+
+                if (cell.data('is-dynamic-rule')) {
+                    value = (cell.find('.value-input').val() || '').trim();
+                    filter = cell.find('.operator-dropdown').val() || 'Equals';
+                    columnType = 0;
+                } else {
+                    value = (cell.find('.value-input, .form-select').val() || '').trim();
+                }
+
+                if (value) {
+                    dynamicProperties.push({
+                        columnName: colName,
+                        value: value,
+                        filter: filter,
+                        columnType: columnType
+                    });
+                }
+            });
+
+            if (dynamicProperties.length === 0) {
+                alert("⚠️ Please modify some data before saving.");
+                return;
+            }
+
+            console.log("Rule ID:", ruleId);
+            console.log("Lookup ID:", lookupId);
+            console.log("Payload to be sent:", JSON.stringify(dynamicProperties, null, 2));
+
+            // ✅ Update rule via API
+            fetch(apiCatalogueSave, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lookupId: lookupId,
+                    ruleId: ruleId,
+                    jsonRules: JSON.stringify(dynamicProperties)
+                })
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to update rule');
+                    return res.json();
+                })
+                .then(() => {
+                    alert('✅ Rule updated successfully.');
+                    // Reload rule list for this lookup
+                    $('#lookup-table-body tr.row-selected').trigger('click');
+                })
+                .catch(err => {
+                    console.error('Update rule error:', err);
+                    alert('❌ Error: ' + err.message);
+                });
+        });
+
+
+            // ✅ CORRECTED to handle one operation type at a time (Add OR Edit)
+        //    $(document).on('click', '#btnSaveAllRules', function() {
+        //     const btn = $(this);
+        //     const lookupId = parseInt(btn.data('table-id')); // The actual ID of the main lookup table
+        //     const rulesPayload = [];
+        //     let hasNewRule = false;
+        //     let hasExistingRule = false;
+
+        //     // Gather all rule data from the UI
+        //     $('.rule-row').each(function() {
+        //         const row = $(this);
+        //         const ruleId = parseInt(row.data('rule-id')) || 0;
+
+        //         // Skip rows without data
+        //         let hasData = false;
+        //         row.find('.value-input, .form-select').each(function() {
+        //             if ($(this).val()) {
+        //                 hasData = true;
+        //                 return false; // Exit .each loop
+        //             }
+        //         });
+        //         if (!hasData) return; // Continue to next .rule-row
+
+        //         let rule = {
+        //             id: ruleId,
+        //             dynamicProperties: []
+        //         };
+
+        //         // Determine operation type
+        //         if (ruleId === 0) hasNewRule = true;
+        //         else hasExistingRule = true;
+
+        //         // Process each cell with column data
+        //         row.find('td[data-column-name]').each(function() {
+        //             const cell = $(this);
+        //             const colName = cell.data('column-name');
+        //             let value = null;
+        //             let filter = 'Equals';
+        //             let columnType = 1;
+
+        //             if (cell.data('is-dynamic-rule')) {
+        //                 value = cell.find('.value-input').val()?.trim();
+        //                 filter = cell.find('.operator-dropdown').val() || 'Equals';
+        //                 columnType = 0;
+        //             } else {
+        //                 value = cell.find('.value-input, .form-select').val()?.trim();
+        //             }
+
+        //             if (value) {
+        //                 rule.dynamicProperties.push({
+        //                     columnName: colName,
+        //                     value: value,
+        //                     filter: filter,
+        //                     columnType: columnType
+        //                 });
+        //             }
+        //         });
+
+        //         if (rule.dynamicProperties.length > 0) {
+        //             rulesPayload.push(rule);
+        //         }
+        //     });
+
+        //     // Enforce "one operation at a time" rule
+        //     if (hasNewRule && hasExistingRule) {
+        //         alert("You cannot add new rules and edit existing ones at the same time. Please save your changes for each operation separately.");
+        //         return;
+        //     }
+
+        //     // Validate payload
+        //     if (rulesPayload.length === 0) {
+        //         alert("No rules with data have been entered or changed.");
+        //         return;
+        //     }
+
+        //     // Determine Tableid based on operation type
+        //     const tableIdToSend = hasNewRule ? lookupId : (hasExistingRule ? 0 : null);
+        //     if (tableIdToSend === null) return;
+
+        //     // Combine all dynamic properties of all rules into a single array
+        //     const allDynamicProperties = rulesPayload.flatMap(r => r.dynamicProperties);
+
+        //     // Log operation details
+        //     console.log("Operation Type:", hasNewRule ? "ADD" : "EDIT");
+        //     console.log("Payload to be sent:", JSON.stringify(allDynamicProperties, null, 2));
+        //     console.log("Tableid to send:", tableIdToSend);
+
+        //     // Disable button during API call
+        //     btn.prop('disabled', true).text('Saving...');
+
+        //     // Make API call
+        //     fetch(apiCatalogueSave, {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({
+        //             jsonRules: JSON.stringify(allDynamicProperties)
+        //         })
+        //     })
+        //     .then(res => {
+        //         if (!res.ok) throw new Error('API Error: ' + res.statusText);
+        //         return res.json();
+        //     })
+        //     .then(data => {
+        //         alert(`Processed successfully: ${data.processedCount || 0} records inserted into MasterProducts.`);
+        //     })
+        //     .catch(err => {
+        //         alert('Error: ' + err.message);
+        //     })
+        //     .finally(() => {
+        //         btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Save All Rules');
+        //     });
+        // });
+
             // CASCADING DROPDOWN LOGIC (MODIFIED to return a promise)
+
+
+
+
+
             function populateCategoryDropdown(parentId, targetDropdown) {
               
                 return new Promise((resolve, reject) => {

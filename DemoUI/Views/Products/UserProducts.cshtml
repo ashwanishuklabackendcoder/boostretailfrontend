@@ -1,0 +1,344 @@
+﻿@{
+    ViewData["Title"] = "SIM Products";
+}
+
+<div class="container-fluid mt-3">
+    <h2>My Products</h2>
+    <hr />
+    <h6>Maintain Products</h6>
+    <hr />
+
+    <!-- 🔹 Filter Section -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <input type="text" id="searchBox" class="form-control" placeholder="Enter MPN / Barcode / Title / Model" style="width: 280px;" />
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="categorized">
+                <label class="form-check-label" for="categorized">Categorized</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="uncategorized">
+                <label class="form-check-label" for="uncategorized">Uncategorized</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="singleResult">
+                <label class="form-check-label" for="singleResult">Single per Model</label>
+            </div>
+        </div>
+
+        <div>
+            <label class="me-2">Results per Page:</label>
+            <select id="pageSize" class="form-select d-inline-block" style="width: 100px;">
+                <option>50</option>
+                <option>100</option>
+                <option>200</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 🔹 Table -->
+    <div class="table-responsive scroll-table">
+        <table class="table table-striped table-bordered" id="productTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>MPN</th>
+                    <th>Title</th>
+                    <th>Brand</th>
+                    <th>Supplier</th>
+                    <th>Size</th>
+                    <th>Colour</th>
+                    <th>Year</th>
+                    <th>Cost</th>
+                    <th>Price</th>
+                    <th>Category1</th>
+                    <th>Category2</th>
+                    <th>Category3</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- 🔹 Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <div>
+            <button type="button" class="btn btn-outline-primary rounded-pill me-2" id="prevBtn">Prev</button>
+            <button type="button" class="btn btn-outline-primary rounded-pill" id="nextBtn">Next</button>
+        </div>
+        <span id="paginationInfo" class="fw-bold">Page 1</span>
+    </div>
+</div>
+
+<!-- 🔹 Edit Modal -->
+<!-- 🔹 Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="editMPN">
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label>Title</label>
+                            <input type="text" class="form-control" id="editTitle">
+                        </div>
+                        <div class="col-md-3">
+                            <label>Cost</label>
+                            <input type="number" class="form-control" id="editCost" readonly>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Price</label>
+                            <input type="number" class="form-control" id="editPrice">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label>Category 1</label>
+                            <select id="editCat1" class="form-select"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Category 2</label>
+                            <select id="editCat2" class="form-select"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Category 3</label>
+                            <select id="editCat3" class="form-select"></select>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-primary" id="saveEdit">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const apiUrl = "https://simapi.runasp.net/api/Catalogue/GetMasterProducts";
+    const updateApi = "https://simapi.runasp.net/api/Catalogue/UpdateProduct";
+    const apiCategoriesUrl = "https://simapi.runasp.net/api/Category/GetCategoryByParentId";
+
+    let currentPage = 1;
+    let pageSize = 50;
+    let currentEdit = {}; // ✅ FIX: store current product being edited
+
+    async function loadProducts() {
+        const token = localStorage.getItem("JWToken");
+
+        const filter = {
+            SearchTerm: document.getElementById("searchBox").value || "",
+            Categorized: document.getElementById("categorized").checked ? true :
+                         document.getElementById("uncategorized").checked ? false : null,
+            SingleResultPerModel: document.getElementById("singleResult").checked,
+            PageNumber: currentPage,
+            PageSize: pageSize
+        };
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(filter)
+            });
+
+            if (!response.ok) throw new Error("Failed to fetch products.");
+
+            const data = await response.json();
+            const products = data.items || [];
+            const totalCount = data.totalCount || 0;
+            const totalPages = Math.ceil(totalCount / pageSize);
+
+            const tbody = document.querySelector("#productTable tbody");
+            tbody.innerHTML = "";
+
+            products.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.mpn}</td>
+                        <td>${p.title}</td>
+                        <td>${p.brand}</td>
+                        <td>${p.supplier}</td>
+                        <td>${p.size}</td>
+                        <td>${p.colour}</td>
+                        <td>${p.year}</td>
+                        <td>${p.cost}</td>
+                        <td>${p.price}</td>
+                        <td data-cat1="${p.category1}" data-cat1id="${p.category1Id || ''}"
+                            data-cat2="${p.category2}" data-cat2id="${p.category2Id || ''}"
+                            data-cat3="${p.category3}" data-cat3id="${p.category3Id || ''}">
+                            ${p.category1 || ""}
+                        </td>
+                        <td>${p.category2 || ""}</td>
+                        <td>${p.category3 || ""}</td>
+                        <td><button class="btn btn-sm btn-outline-primary editBtn" data-mpn="${p.mpn}">Edit</button></td>
+                    </tr>`;
+            });
+
+            document.getElementById("paginationInfo").innerText =
+                `Page ${currentPage} of ${totalPages} | Total: ${totalCount}`;
+            document.getElementById("prevBtn").disabled = currentPage === 1;
+            document.getElementById("nextBtn").disabled = currentPage >= totalPages;
+
+            document.querySelectorAll(".editBtn").forEach(btn => {
+
+                btn.addEventListener("click", async function () {
+                    const row = this.closest("tr");
+                     debugger;
+                    currentEdit = { // ✅ FIX: keep existing values
+                        MPN: this.dataset.mpn,
+                        Title: row.children[1].innerText,
+                        Price: row.children[8].innerText,
+                        Cat1Id: row.children[9].dataset.cat1id,
+                        Cat2Id: row.children[9].dataset.cat2id,
+                        Cat3Id: row.children[9].dataset.cat3id
+                    };
+
+                    document.getElementById("editMPN").value = currentEdit.MPN;
+                    document.getElementById("editTitle").value = currentEdit.Title;
+                    document.getElementById("editPrice").value = currentEdit.Price;
+                    document.getElementById("editCat1").value = currentEdit.Cat1Id;
+                    document.getElementById("editCat2").value = currentEdit.Cat2Id;
+                    document.getElementById("editCat3").value = currentEdit.Cat3Id;
+                    await populateCascadingDropdowns(currentEdit.Cat1Id, currentEdit.Cat2Id, currentEdit.Cat3Id);
+                    new bootstrap.Modal(document.getElementById("editModal")).show();
+                });
+            });
+
+        } catch (err) {
+            console.error("Error loading products:", err);
+        }
+    }
+
+    async function populateCategoryDropdown(parentId, dropdown) {
+        try {
+            const response = await fetch(`${apiCategoriesUrl}?parentId=${parentId || ""}`);
+            const data = await response.json();
+
+            dropdown.innerHTML = `<option value="">-- Select --</option>`;
+            data.forEach(cat => {
+                dropdown.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+            });
+        } catch (err) {
+            console.error("Error loading categories:", err);
+        }
+    }
+
+    async function populateCascadingDropdowns(cat1val, cat2val, cat3val) {
+        const cat1 = document.getElementById("editCat1");
+        const cat2 = document.getElementById("editCat2");
+        const cat3 = document.getElementById("editCat3");
+
+        await populateCategoryDropdown(null, cat1);
+        if (cat1val) {
+            cat1.value = cat1val;
+            await populateCategoryDropdown(cat1.value, cat2);
+            if (cat2val) {
+                cat2.value = cat2val;
+                await populateCategoryDropdown(cat2.value, cat3);
+                if (cat3val) cat3.value = cat3val;
+            }
+        }
+
+        cat1.addEventListener("change", async () => {
+            await populateCategoryDropdown(cat1.value, cat2);
+            cat3.innerHTML = `<option value="">-- Select --</option>`;
+        });
+
+        cat2.addEventListener("change", async () => {
+            await populateCategoryDropdown(cat2.value, cat3);
+        });
+    }
+
+    document.getElementById("saveEdit").addEventListener("click", async () => {
+        // ✅ FIX: preserve existing categories if not changed
+        const cat1Val = document.getElementById("editCat1").value || currentEdit.Cat1Id;
+        const cat2Val = document.getElementById("editCat2").value || currentEdit.Cat2Id;
+        const cat3Val = document.getElementById("editCat3").value || currentEdit.Cat3Id;
+
+        const updatedProduct = {
+            MPN: document.getElementById("editMPN").value,
+            Title: document.getElementById("editTitle").value,
+            Price: parseFloat(document.getElementById("editPrice").value),
+            Category1Id: cat1Val,
+            Category2Id: cat2Val,
+            Category3Id: cat3Val
+        };
+
+        try {
+            const token = localStorage.getItem("JWToken");
+            const response = await fetch(updateApi, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedProduct)
+            });
+
+            if (response.ok) {
+                alert("Product updated successfully!");
+                bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+                loadProducts();
+            } else {
+                const error = await response.text();
+                alert("Error: " + error);
+            }
+        } catch (err) {
+            console.error("Update error:", err);
+        }
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadProducts();
+        }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+        currentPage++;
+        loadProducts();
+    });
+
+    document.getElementById("pageSize").addEventListener("change", (e) => {
+        pageSize = parseInt(e.target.value);
+        currentPage = 1;
+        loadProducts();
+    });
+
+    function debounce(fn, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    document.getElementById("searchBox").addEventListener("keyup", debounce(() => {
+        currentPage = 1;
+        loadProducts();
+    }, 600));
+
+    document.querySelectorAll("#categorized, #uncategorized, #singleResult").forEach(cb => {
+        cb.addEventListener("change", () => {
+            currentPage = 1;
+            loadProducts();
+        });
+    });
+
+    loadProducts();
+</script>

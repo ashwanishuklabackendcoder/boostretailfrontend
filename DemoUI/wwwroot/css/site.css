@@ -1,4 +1,4 @@
-/* Base font size */
+﻿/* Base font size */
 
 html, body {
     overflow-x: hidden !important;
@@ -340,8 +340,112 @@ html, body {
     .scroll-table thead th {
         position: sticky;
         top: 0;
-        background-color: #212529; /* same as .table-dark */
-        color: #fff;
+         /* same as .table-dark */
+        /*color: #fff;*/
         z-index: 2;
     }
+/* 🎯 Grid container */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    background-color: #f8f9fa;
+    padding: 1rem;
+}
 
+    /* 🧱 Product Card */
+    .product-grid .card {
+        border: none;
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+        .product-grid .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+        }
+
+    /* 🖼️ Image */
+    .product-grid .ratio {
+        border-bottom: 1px solid #eee;
+    }
+
+    .product-grid img {
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .product-grid .card:hover img {
+        transform: scale(1.05);
+    }
+
+    /* 🧾 Text styles */
+    .product-grid .card-body {
+        padding: 0.75rem;
+        text-align: center;
+    }
+
+        .product-grid .card-body p {
+            margin-bottom: 0.25rem;
+        }
+
+    .product-grid .fw-semibold {
+        color: #212529;
+        font-size: 0.9rem;
+    }
+
+    .product-grid .text-muted {
+        font-size: 0.8rem;
+    }
+
+    .product-grid .fw-bold {
+        color: #000;
+        font-size: 0.9rem;
+    }
+
+/* 🧩 Scrollable area (optional) */
+.scrollable-grid {
+    max-height: 70vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+    .scrollable-grid::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .scrollable-grid::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+    }
+
+.edit-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 0.5rem;
+}
+
+.product-card:hover .edit-overlay {
+    opacity: 1;
+}
+
+.edit-btn {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+}

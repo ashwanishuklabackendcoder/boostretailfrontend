@@ -1,11 +1,21 @@
 ﻿@{
-    ViewData["Title"] = "SIM Products";
+    ViewData["Title"] = "Missing Product Data";
 }
 
-
 <div class="container-fluid px-0">
-    <h4 class="fw-bold mb-2">SIM Products</h4>
-    <p class="text-muted">Maintain SIM Products</p>
+    <h5 class="fw-bold text-uppercase mb-1">Incorrect Data</h5>
+    <p class="text-muted small mb-4">SIM > Incorrect Data > Missing Product Data</p>
+    <hr />
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-semibold mb-2 mb-sm-0">Missing Product data</h6>
+        
+    </div>
+
+    <!-- 🔹 Category Filters -->
+</div>
+<hr />
+<div class="container-fluid mt-3">
+    
 
     <!-- 🔹 Filter Section -->
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
@@ -36,46 +46,49 @@
         </div>
     </div>
 
-</div>
-<!-- 🔹 Table -->
-<div class="lookup-tables-container">
-    <div class="card">
-        <div class="card-body p-0">
-            <div class="scroll-table">
-                <table class="table table-hover align-middle mb-0 " id="productTable">
-                    <thead class="table-light">
-                        <tr>
-                            <th>MPN</th>
-                            <th>Title</th>
-                            <th>Brand</th>
-                            <th>Supplier</th>
-                            <th>Size</th>
-                            <th>Colour</th>
-                            <th>Year</th>
-                            <th>Cost</th>
-                            <th>Price</th>
-                            <th>Category1</th>
-                            <th>Category2</th>
-                            <th>Category3</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-
+    <div class="lookup-tables-container">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="scroll-table">
+                    <table class="table table-hover align-middle mb-0" id="productTable">
+                        <thead class="table-light text-black">
+                            <tr>
+                                <th>MPN</th>
+                                <th>Title</th>
+                                <th>Brand</th>
+                                <th>Supplier</th>
+                                <th>Size</th>
+                                <th>Colour</th>
+                                <th>Year</th>
+                                <th>Cost</th>
+                                <th>Price</th>
+                                <th>Category1</th>
+                                <th>Category2</th>
+                                <th>Category3</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+               
             </div>
         </div>
     </div>
+
+    <!-- 🔹 Table -->
+
+
+    <!-- 🔹 Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <div>
+            <button type="button" class="btn btn-outline-primary rounded-pill me-2" id="prevBtn">Prev</button>
+            <button type="button" class="btn btn-outline-primary rounded-pill" id="nextBtn">Next</button>
+        </div>
+        <span id="paginationInfo" class="fw-bold">Page 1</span>
+    </div>
 </div>
 
-<!-- 🔹 Pagination -->
-<div class="d-flex justify-content-between align-items-center mt-2">
-    <div>
-        <button type="button" class="btn btn-outline-primary rounded-pill me-2" id="prevBtn">Prev</button>
-        <button type="button" class="btn btn-outline-primary rounded-pill" id="nextBtn">Next</button>
-    </div>
-    <span id="paginationInfo" class="fw-bold">Page 1</span>
-</div>
 <!-- 🔹 Edit Modal -->
 <!-- 🔹 Edit Modal -->
 <div class="modal fade" id="editModal" tabindex="-1">
@@ -199,7 +212,7 @@
             document.getElementById("nextBtn").disabled = currentPage >= totalPages;
 
             document.querySelectorAll(".editBtn").forEach(btn => {
-               
+
                 btn.addEventListener("click", async function () {
                     const row = this.closest("tr");
                      debugger;

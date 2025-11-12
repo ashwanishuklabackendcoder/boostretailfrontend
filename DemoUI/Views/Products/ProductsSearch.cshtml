@@ -1,12 +1,15 @@
 ﻿@{
     var token = Context.Session.GetString("JWToken");
 }
-<div>
-    <h2>Product Search</h2>
-    <hr />
-    <h6>Save Sim Products <span style="float: right;">Total Products: 500,000 | Uncategorised: 20,000</span></h6>
-    <hr />
 
+<div class="section-title"><h4 class="m-0">Product Search</h4></div>
+<div class="breadcrumb-bar">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb m-0 bg-transparent">
+            <li class="breadcrumb-item"><a href="#">Product Search</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Save Sim Products</li>
+        </ol>
+    </nav>
 </div>
 
 <div class="filter-section d-flex justify-content-between align-items-center">

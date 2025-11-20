@@ -243,7 +243,7 @@ html, body {
         font-weight: 600;
         color: #555;
     }
- 
+
         .table th.sortable {
             cursor: pointer;
         }
@@ -341,10 +341,13 @@ html, body {
     .scroll-table thead th {
         position: sticky;
         top: 0;
-         /* same as .table-dark */
+        /* same as .table-dark */
         /*color: #fff;*/
         z-index: 2;
     }
+
+
+
 /* 🎯 Grid container */
 .product-grid {
     display: grid;
@@ -449,4 +452,145 @@ html, body {
     border: none;
     padding: 6px 10px;
     border-radius: 4px;
+}
+
+/* Fix: Tabulator hides custom header filter contents */
+/* Makes header filter row behave consistently */
+.tabulator-col .tabulator-header-filter {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+    /* Make the wrapper inside the filter fill the entire header cell */
+    .tabulator-col .tabulator-header-filter > div {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    /* Prevent Tabulator from shrinking the filter container */
+    .tabulator-col .tabulator-header-filter div {
+        flex-shrink: 0 !important;
+        flex-grow: 1 !important;
+    }
+
+
+
+
+.tabulator-row.tabulator-row-even {
+    background-color: inherit !important;
+}
+
+
+.tabulator-row:hover {
+    background-color: #007bff !important; /* Light blue background */
+    color: #fff !important;
+}
+
+.tabulator-row:hover .tabulator-cell a {
+    color: #fff !important;
+}
+
+.tabulator-row:hover .tabulator-cell .editBtn {
+    color: #fff !important;
+}
+
+/* Optional: Add subtle transition effect */
+.tabulator-row {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.tabulator .tabulator-col .tabulator-col-title {
+    text-transform: uppercase !important;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+}
+
+
+/* Hover effect for Tabulator column headers */
+.tabulator .tabulator-col:hover {
+    background-color: #007bff !important;
+    color: #fff !important;
+}
+
+/* Make column title text turn white on hover */
+.tabulator .tabulator-col:hover .tabulator-col-title {
+    color: #fff !important;
+}
+
+/* Smooth animation */
+.tabulator .tabulator-col {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.tabulator {
+    max-width: 100% !important;
+}
+
+
+/*  background on selected rows */
+.tabulator-row.tabulator-selected {
+/*    background-color: transparent !important;*/
+    background-color: #007bff !important; /* Light blue background */
+    color: #fff !important;
+}
+
+.tabulator-row.tabulator-selected .tabulator-cell a {
+    color: #fff !important;
+}
+
+.tabulator-row.tabulator-selected:hover {
+    background-color: #007bff !important; /* Light blue background */
+    color: #fff !important;
+}
+
+/* Cell borders */
+.tabulator-cell {
+    border-right: 1px solid #e0e0e0 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+/* Header borders */
+.tabulator-col {
+    border-right: 1px solid #e0e0e0 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+/* Table outside border */
+.tabulator {
+    border: 1px solid #d0d0d0 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.image-box {
+    height: 350px;
+    width: 100%;
+    overflow: hidden; /* prevents overflow */
+    border-radius: 10px; /* optional */
+    background: #f8f8f8; /* optional */
+}
+
+.image-box img {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain; /* ensures full image fits inside */
 }

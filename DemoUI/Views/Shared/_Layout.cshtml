@@ -15,6 +15,8 @@
     <!-- Main site styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.1/dist/css/tabulator_bootstrap5.min.css">
+
     <!-- ========== Figma NAVIGATION + SPACING STYLE ========== -->
     <style>
         :root {
@@ -31,7 +33,7 @@
 
         html, body {
             margin: 0;
-            padding: 0;
+            padding-top: 30px;
             overflow-x: hidden !important;
             font-family: "Segoe UI", Arial, sans-serif;
         }
@@ -50,6 +52,12 @@
             justify-content: space-between;
             color: #fff;
             width: 100%;
+        }
+
+        .top-nav-left {
+            display: flex;
+            padding-left: 30px;
+            align-items: center;
         }
 
         .nav-buttons {
@@ -74,9 +82,8 @@
             .nav-btn svg {
                 width: var(--nav-icon-size);
                 height: var(--nav-icon-size);
-                
             }
-            
+
         /* Top nav colors */
         .top-nav .nav-btn:hover {
             background-color: var(--top-selected);
@@ -89,26 +96,28 @@
 
         /* ===== Sidebar ===== */
         .side-nav {
-            overflow: visible !important;
+            /* overflow: visible !important; */
             position: relative;
         }
 
-        #simSubMenu {
-            position: absolute;
-            top: 0;
-            left: 64px;
-            background: #fff;
-            color: #000;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            min-width: 220px;
-            z-index: 9999;
-            display: none;
-        }
+        /* #simSubMenu {
+                    position: absolute;
+                    top: 0;
+                    left: 64px;
+                    background: #fff;
+                    color: #000;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                    min-width: 220px;
+                    z-index: 9999;
+                    display: none;
+                } */
+
 
         .side-nav {
             width: var(--side-nav-width);
-            height: 100vh;
+            height: 150vh;
+            /* height: 100%; */
             background-color: var(--side-unselected);
             display: flex;
             flex-direction: column;
@@ -148,36 +157,33 @@
             flex-shrink: 0;
         }
 
-        /* ===== Sections ===== */
-        .section-title {
-            height: var(--top-nav-height);
-            display: flex;
-            align-items: center;
-            padding: 0 var(--global-gap);
-            border-bottom: 1px solid #e1e1e1;
-        }
+        /* ===== Sections =====
+                .section-title {
+                    height: var(--top-nav-height);
+                    display: flex;
+                    align-items: center;
+                    padding: 0 var(--global-gap);
+                    border-bottom: 1px solid #e1e1e1;
+                }
 
-        .breadcrumb-bar {
-            height: 50px;
-            display: flex;
-            align-items: center;
-            padding: 0 var(--global-gap);
-            border-bottom: 1px solid #e1e1e1;
-        }
+                .breadcrumb-bar {
+                    height: 50px;
+                    display: flex;
+                    align-items: center;
+                    padding: 0 var(--global-gap);
+                    border-bottom: 1px solid #e1e1e1;
+                }
 
-        main {
-            flex-grow: 1;
-            padding: var(--global-gap);
-        }
+                /* main {
+                    flex-grow: 1;
+                    padding: var(--global-gap);
+                } */
 
         @@media (max-width: 767px) {
-            .side-nav
-
-        {
-            width: 0;
-            overflow: hidden;
-        }
-
+            .side-nav {
+                width: 0;
+                overflow: hidden;
+            }
         }
 
         .submenu-header {
@@ -207,7 +213,7 @@
         }
 
             .chevron.rotate {
-                transform: rotate(180deg);
+                transform: rotate(90deg);
             }
 
         .side-nav.collapsed {
@@ -221,12 +227,79 @@
             transition: all 0.3s ease-in-out;
         }
 
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px; /* or whatever your header height actually is */
+            z-index: 9999;
+            background: #000; /* or your navbar bg */
+        }
+
+        .side-nav {
+            position: fixed; /* makes sidebar stick */
+            top: 64px;
+            left: 0;
+            width: var(--side-nav-width);
+            height: 100vh; /* full height */
+            background-color: var(--side-unselected);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* <-- vertical center */
+            align-items: center; /* <-- horizontal center */
+
+            padding: 0;
+            margin: 0;
+            transition: width 0.3s ease;
+            overflow-x: hidden;
+            overflow-y: auto; /* if content grows */
+        }
+
+        /* #simSubMenu {
+                    position: fixed !important;
+                    z-index: 999999 !important;
+                    display: none;
+                    background: white;
+                    padding: 12px;
+                    border-radius: 8px;
+                    min-width: 260px;
+                    box-shadow: 0 4px 18px rgba(0,0,0,0.20);
+                } */
+
+        .sim-popup {
+            position: fixed;
+            top: 80px; /* adjust */
+            left: 80px; /* adjust according sidebar width */
+            width: 300px;
+            background: white;
+            z-index: 9999 !important;
+            display: none;
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        /* togglr */
+        #sidebar {
+            transition: width 0.3s ease;
+        }
+
+        #sidebar.collapsed {
+            width: 0px; /* or 60px / 50px depending on your design */
+        }
+
+        #main-content {
+            transition: all 0.5s ease-in-out;
+        }
+
     </style>
+
 </head>
 <body>
 
     <!-- =================== HEADER + TOP NAV =================== -->
     <header>
+
         <div id="toggleWrapper" onclick="toggleSidebar()">
 
             <svg xmlns="http://www.w3.org/2000/svg" id="toggleSvg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -235,77 +308,104 @@
 
         </div>
 
-        <nav class="top-nav flex-grow-1">
-            <div class="d-flex align-items-center ps-3">
-                
-                <strong>SIM</strong>
-                <div class="vr mx-3">
-                
+        <nav class="top-nav">
 
+            <div class="top-nav-left">
+
+                <!-- LEFT SECTION -->
+                <div style="display: flex; align-items: center;">
+                    <span style="color: var(--color-text-navigation-header, #FFF);
+                 font-family: Inter, sans-serif;
+                 font-size: 23px;
+                 font-style: normal;
+                 font-weight: 600;
+                 line-height: 32px;
+                 text-transform: capitalize; width: 200px;">
+                        Dashboard
+                    </span>
                 </div>
-              
-                <div style="padding:20px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" height="24px" width="24px" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+
+                <div style="display: flex; width: 64px;height: 64px;padding: 20px;align-items: center;
+                           gap: 3px;
+                           border-left: 0.75px solid #FFF;
+                           background: var(--color-background-navbar, #000);">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         width="24px"
+                         height="24px"
+                         viewBox="0 0 24 24"
+                         stroke-width="1.5"
+                         stroke="currentColor"
+                         style="color: #FFF;">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                     </svg>
                 </div>
-                <div class="d-flex flex-column lh-1">
-                    <span><strong>Access:</strong> @role</span>
-                    <span><strong>Username:</strong> @username</span>
+
+                <!-- RIGHT SECTION -->
+                <div style="display: flex; flex-direction: column; width: 155px; height: 36px; justify-content: center; gap: 4px;">
+                    <span style="font-family: Inter, sans-serif; font-size: 13px; font-style: normal; line-height: 18px; color: var(--color-text-placeholder, #BABABA);">
+                        <span style="font-weight: 700;">Access:</span>
+                        <span style="font-weight: 400;"> @role</span>
+                    </span>
+                    <span style="font-family: Inter, sans-serif; font-size: 13px; font-style: normal; line-height: 18px; color: var(--color-text-placeholder, #BABABA);">
+                        <span style="font-weight: 700;">Username:</span>
+                        <span style="font-weight: 400;"> @username</span>
+                    </span>
                 </div>
+
             </div>
 
+
             <div class="nav-buttons">
-            @if (role == "User")
+                @if (role == "User")
                 {
                     <button class="nav-btn selected" title="Analytics">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                         </svg>
-
                     </button>
+
                     <button class="nav-btn" title="Orders">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                         </svg>
 
                     </button>
+
                     <button class="nav-btn" title="Payments">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
                         </svg>
 
                     </button>
+
                     <button class="nav-btn" title="Settings">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 0 1-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 1 1-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 0 1 6.336-4.486l-3.276 3.276a3.004 3.004 0 0 0 2.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852Z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.867 19.125h.008v.008h-.008v-.008Z" />
                         </svg>
-
                     </button>
+
                     <button class="nav-btn" title="ShieldCheck">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                         </svg>
-
-
                     </button>
+
                     <button class="nav-btn" title="Clipboard">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
                         </svg>
-
-
                     </button>
+
                     <button class="nav-btn" title="Tablecell">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0 1 12 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 1.5v-1.5m0 0c0-.621.504-1.125 1.125-1.125m0 0h7.5" />
                         </svg>
-
-
-
                     </button>
-                    
+
                 }
                 else
                 {
@@ -314,22 +414,23 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
-
-
-
-
                     </button>
                 }
 
-       
-         
+
+
             </div>
+
         </nav>
+
     </header>
 
-    <!-- =================== SIDEBAR =================== -->
+
     <div class="d-flex">
-        <aside id="sidebar" class="side-nav" role="navigation">
+
+        <!-- =================== SIDEBAR =================== -->
+        <div id="sidebar" class="side-nav" role="navigation">
+
             <a asp-controller="Home" asp-action="Index" class="nav-btn" title="Dashboard">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
@@ -343,80 +444,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
                     </svg>
                 </button>
-
-                <!-- SIM Submenu -->
-
-                <div id="simSubMenu" class="bg-white text-dark shadow position-absolute start-100 top-0 p-3 rounded"
-                     style="min-width: 240px; display:none; z-index:9999;">
-
-                    <h6 class="fw-bold mb-3">SIM</h6>
-
-                    <ul class="list-unstyled m-0">
-
-                        <!-- Supplier Feeds -->
-                        <li class="submenu-item mb-2">
-                            <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#supplierSub">
-                                <span>Supplier Feeds</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                            <ul id="supplierSub" class="submenu-list ms-3 mt-2" style="display:none;">
-                                <li><a asp-controller="Supplier" asp-action="Feeds" class="text-dark d-block py-1">Maintain Supplier Feeds</a></li>
-                            </ul>
-                        </li>
-
-                        <!-- Categorization -->
-                        <li class="submenu-item mb-2">
-                            <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#categorySub">
-                                <span>Categorization</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                            <ul id="categorySub" class="submenu-list ms-3 mt-2" style="display:none;">
-                                <li><a asp-controller="Category" asp-action="MainTainCategory" class="text-dark d-block py-1">Maintain Categories</a></li>
-                                <li><a asp-controller="Category" asp-action="MainLookupTabels" class="text-dark d-block py-1">Maintain Lookup Tables</a></li>
-                            </ul>
-                        </li>
-
-                        <!-- SIM Products -->
-                        <li class="submenu-item mb-2">
-                            <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#simProductsSub">
-                                <span>SIM Products</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                            <ul id="simProductsSub" class="submenu-list ms-3 mt-2" style="display:none;">
-                                <li><a asp-controller="SIM" asp-action="SIMProducts" class="text-dark d-block py-1">Maintain SIM Products</a></li>
-                            </ul>
-                        </li>
-                        <li class="submenu-item mb-2">
-                            <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#incorrectdata">
-                                <span>Inncorrect Data</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                            <ul id="incorrectdata" class="submenu-list ms-3 mt-2" style="display:none;">
-                                <li><a asp-controller="IncorrectData" asp-action="VisualCategoryChecker" class="text-dark d-block py-1">Visual Category Checker</a></li>
-                                <li><a asp-controller="IncorrectData" asp-action="MissingProduct" class="text-dark d-block py-1">Missing Products</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-
-               @*  <div id="simSubMenu" class="bg-white text-dark shadow position-absolute start-100 top-0 p-3 rounded"
-                     style="min-width: 220px; display:none; z-index:999;">
-                    <h6 class="fw-bold mb-3">SIM</h6>
-                    <ul class="list-unstyled m-0">
-                        <li><a asp-controller="Supplier" asp-action="Feeds" class="text-dark d-block py-1">Maintain Supplier Feeds</a></li>
-                        <li><a asp-controller="Category" asp-action="MainTainCategory" class="text-dark d-block py-1">Maintain Categories</a></li>
-                        <li><a asp-controller="Category" asp-action="MainLookupTabels" class="text-dark d-block py-1">Maintain Lookup Tables</a></li>
-                        <li><a asp-controller="SIM" asp-action="SIMProducts" class="text-dark d-block py-1">Maintain SIM Products</a></li>
-                    </ul>
-                </div> *@
             }
             else
             {
@@ -430,6 +457,7 @@
                 </a>
             }
 
+
             <a href="#" class="nav-btn" title="Setup">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
@@ -442,48 +470,142 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                 </svg>
             </a>
-        </aside>
+
+        </div>
+
 
         <!-- =================== MAIN CONTENT =================== -->
-        <div class="flex-grow-1">
-            
-
-            <main>
-                @RenderBody()
-            </main>
+        <div id="main" class="flex-grow-1" style="width:90%;margin-left:70px;">
+            @RenderBody()
         </div>
+
     </div>
+
+    <!-- SIM Submenu -->
+
+    <div id="simSubMenu" class="sim-popup  bg-white text-dark shadow  p-3 rounded">
+
+        <h6 class="fw-bold mb-3">SIM</h6>
+
+        <ul class="list-unstyled m-0">
+
+            <!-- Supplier Feeds -->
+            <li class="submenu-item mb-2">
+                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#supplierSub">
+                    <span>Supplier Feeds</span>
+                    <span class="dropdown-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </span>
+                </div>
+                <ul id="supplierSub" class="submenu-list ms-3 mt-2" style="display:none;">
+                    <li><a asp-controller="Supplier" asp-action="Feeds" class="text-dark d-block py-1">Maintain Supplier Feeds</a></li>
+                </ul>
+            </li>
+
+            <!-- Categorization -->
+            <li class="submenu-item mb-2">
+                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#categorySub">
+                    <span>Categorization</span>
+                    <span class="dropdown-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </span>
+                </div>
+                <ul id="categorySub" class="submenu-list ms-3 mt-2" style="display:none;">
+                    <li><a asp-controller="Category" asp-action="MainTainCategory" class="text-dark d-block py-1">Maintain Categories</a></li>
+                    <li><a asp-controller="Category" asp-action="MainLookupTabels" class="text-dark d-block py-1">Maintain Lookup Tables</a></li>
+                </ul>
+            </li>
+
+            <!-- SIM Products -->
+            <li class="submenu-item mb-2">
+                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#simProductsSub">
+                    <span>SIM Products</span>
+                    <span class="dropdown-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </span>
+                </div>
+                <ul id="simProductsSub" class="submenu-list ms-3 mt-2" style="display:none;">
+                    <li><a asp-controller="SIM" asp-action="SIMProducts" class="text-dark d-block py-1">Maintain SIM Products</a></li>
+                </ul>
+            </li>
+
+            <!-- Incorrect Data -->
+            <li class="submenu-item mb-2">
+                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#incorrectdata">
+                    <span>Incorrect Data</span>
+                    <span class="dropdown-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </span>
+                </div>
+                <ul id="incorrectdata" class="submenu-list ms-3 mt-2" style="display:none;">
+                    <li><a asp-controller="IncorrectData" asp-action="VisualCategoryChecker" class="text-dark d-block py-1">Visual Category Checker</a></li>
+                    <li><a asp-controller="IncorrectData" asp-action="MissingProduct" class="text-dark d-block py-1">Missing Products</a></li>
+                </ul>
+            </li>
+
+        </ul>
+
+    </div>
+
 
     <!-- =================== SCRIPTS =================== -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+
         document.addEventListener("DOMContentLoaded", () => {
+
             const sidebar = document.getElementById("sidebar");
             const toggleSvg = document.getElementById("toggleSvg");
             const simBtn = document.getElementById("simMenuBtn");
             const simMenu = document.getElementById("simSubMenu");
+            const main = document.getElementById("main");
+
 
             window.toggleSidebar = function () {
-               if (sidebar.classList.contains("collapsed")) {
-                sidebar.classList.remove("collapsed");
-                toggleSvg.innerHTML = '<path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />';
-            } else {
-                sidebar.classList.add("collapsed");
-                toggleSvg.innerHTML = '<path d="M15 18L9 12l6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />';
-            }
 
+               if (sidebar.classList.contains("collapsed")) {
+                   sidebar.classList.remove("collapsed");
+                   toggleSvg.innerHTML = '<path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />';
+                   main.style.marginLeft = "70px";
+               }
+               else {
+                   sidebar.classList.add("collapsed");
+                   toggleSvg.innerHTML = '<path d="M15 18L9 12l6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />';
+                   main.style.marginLeft = "0px";
+               }
             };
 
             // SIM submenu toggle
             if (simBtn && simMenu) {
+
                 simBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
+
                     const visible = simMenu.style.display === "block";
+
+                    // Toggle
                     simMenu.style.display = visible ? "none" : "block";
                     simBtn.setAttribute("aria-expanded", visible ? "false" : "true");
+
+                    // ⭐ Position submenu relative to the button
+                    if (!visible) {
+                        const rect = simBtn.getBoundingClientRect();
+                        simMenu.style.position = "fixed";
+                        simMenu.style.top = "70px";
+                        simMenu.style.left = rect.right + 10 + "px";
+                    }
                 });
+
                 document.addEventListener("click", (e) => {
                     if (!simMenu.contains(e.target) && e.target !== simBtn) {
                         simMenu.style.display = "none";
@@ -492,14 +614,18 @@
                 });
             }
         });
-                // Dropdown toggles for SIM submenu
+
+
+        // Dropdown toggles for SIM submenu
         document.querySelectorAll('#simSubMenu .submenu-header').forEach(header => {
             header.addEventListener('click', function () {
                 const targetId = this.getAttribute('data-target');
                 const targetList = document.querySelector(targetId);
                 const icon = this.querySelector('.chevron');
+                //const dropdown = this.querySelector('.dropdown-arrow');
 
                 if (targetList.style.display === "none" || targetList.style.display === "") {
+
                     targetList.style.display = "block";
                     icon.classList.add("rotate");
                 } else {
@@ -507,10 +633,44 @@
                     icon.classList.remove("rotate");
                 }
             });
+
+            document.addEventListener("click", function (e) {
+
+                const submenu = document.getElementById("simSubMenu");
+
+                // If clicked OUTSIDE submenu → remove rotation from all icons
+                if (!submenu.contains(e.target)) {
+                    closeAllSubmenus();
+                }
+            });
         });
+
+        function closeAllSubmenus() {
+            document.querySelectorAll('#simSubMenu .submenu-header').forEach(header => {
+                const targetId = header.getAttribute('data-target');
+                const targetList = document.querySelector(targetId);
+                const icon = header.querySelector('.chevron');
+
+                // Hide each list
+                if (targetList) {
+                    targetList.style.display = "none";
+                }
+
+                // Remove icon rotation
+                if (icon) {
+                    icon.classList.remove("rotate");
+                }
+            });
+        }
+
+
+
 
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

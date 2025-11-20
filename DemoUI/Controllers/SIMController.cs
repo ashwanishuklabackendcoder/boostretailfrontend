@@ -8,5 +8,11 @@ namespace DemoUI.Controllers
         {
             return View();
         }
+
+        public IActionResult ProductDetail()
+        {
+            return View();
+        }
+
     }
 }

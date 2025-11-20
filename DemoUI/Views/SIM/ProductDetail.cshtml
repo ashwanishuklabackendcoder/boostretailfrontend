@@ -1,0 +1,1046 @@
+﻿@{
+    ViewData["Title"] = "Product Detail";
+}
+<style>
+
+    .nav-tabs {
+        border-bottom: none !important;
+    }
+
+    .nav-tabs .nav-link {
+        background-color: white;
+        color: #0080ff;
+        border-radius: 9999px;
+        padding: 8px 20px;
+        border: 1px solid #0080ff;
+        font-family: Inter, sans-serif;
+        font-weight: 700;
+        font-size: 9pt;
+        cursor: pointer;
+        /* transition: background-color 0.2s ease, border-color 0.2s ease; */
+        margin-right:10px;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        background-color: #0071e6;
+        border-color: #0071e6;
+        color:white;
+    }
+    
+    .nav-tabs .nav-link.active {
+        background-color: #0080ff;
+        color:  white;
+        border-color: #0080ff;
+    }
+
+    .card {
+        border-radius: 10px;
+    }
+
+    input[readonly] {
+        background: #f7f7f7;
+        font-weight: 500;
+    }
+
+    .image-box {
+        height: 250px;
+        width: 100%;
+        overflow: hidden; /* prevents overflow */
+        border-radius: 10px; /* optional */
+        background: #f8f8f8; /* optional */
+    }
+    
+    .image-box img {
+        max-height: 100%;
+        max-width: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain; /* ensures full image fits inside */
+    }
+
+
+</style>
+
+
+<!-- Main Content Wrapper -->
+<div class="container-fluid p-0" style="width:100%; overflow-x:hidden;">
+
+    <!-- Page Top SIM Products (Header area) -->
+    <div style="display: flex; flex-direction: column; align-items: center; align-self: stretch;">
+
+        <!-- SIM Products Title Bar (under Page Top) -->
+        <div style="display: flex; height: 64px; justify-content: space-between; align-items: center;
+                    align-self: stretch; border-bottom: 1px solid var(--color-border-horizontal-lines, #DBDBDB);
+                    background: var(--color-background-main, #FFF);">
+
+            <!-- Left SIM Products (Inside Page Title Bar) -->
+            <div style="display: flex; height: 64px; padding: 0 26px; align-items: center;">
+
+                <div style="display: flex; align-items: center;">
+                    <span style="color: var(--color-text-section-title, #000); font-family: Inter, sans-serif;
+                          font-size: 18px; font-style: normal; font-weight: 600;
+                          line-height: 24px; text-transform: uppercase;">
+                        SIM Products
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- Right Section (Inside Page Title Bar) -->
+            <div style="display: flex; padding: 0 24px; justify-content: flex-end; align-items: center; gap: 14px;">
+
+                <div style="display: flex; align-items: center;">
+                    <span style="color: var(--color-text-section-title, #000); text-align: right;
+                          font-family: Inter, sans-serif; font-size: 15px; font-style: normal; font-weight: 500;
+                          line-height: 18px;">
+                        Advanced Mode
+                    </span>
+                </div>
+
+                <!-- Toggle Button Container -->
+                <div id="toggleContainer"
+                     style="user-select:none;display: flex; width: 42px; height: 22px; align-items: center; cursor: pointer;">
+
+                    <svg id="toggleSwitch" width="42" height="22" viewBox="0 0 42 22" style="cursor:pointer">
+
+                        <!-- Background (OFF default) -->
+                        <rect id="toggleBg"
+                              x="1" y="1"
+                              width="40" height="20"
+                              rx="10"
+                              fill="#BABABA"
+                              stroke="#BABABA"
+                              stroke-width="2"
+                              style="transition: fill 0.25s;" />
+
+                        <!-- Knob (RIGHT default) -->
+                        <rect id="toggleKnob"
+                              x="21"
+                              y="2"
+                              width="18" height="18"
+                              rx="9"
+                              fill="white"
+                              style="transition: all 0.25s;" />
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Breadcrumb Bar -->
+        <div style="display: flex; height: 50px; justify-content: space-between; align-items: center;
+            align-self: stretch; border-bottom: 1px solid var(--color-border-horizontal-lines, #DBDBDB);
+            background: var(--color-background-main, #FFF);">
+
+            <!-- Left Side: Breadcrumb Path -->
+            <div style="display: flex; padding: 0 26px; align-items: center; align-self: stretch;">
+                <!-- Breadcrumbs -->
+                <span style="font-family: Inter, sans-serif;font-size: 15px; font-style: normal; font-weight: 400;
+                             line-height: 20px; cursor:pointer; text-transform: capitalize; margin-right:5px">
+                    <a style="color: var(--color-text-breadcrumbs, #000); text-decoration:none;" href="/SIM/SIMProducts">Maintain SIM Products</a>
+                </span>
+                <span id="breadcrumbs" style="color: var(--color-text-breadcrumbs, #000); font-family: Inter, sans-serif;
+                            font-size: 15px; font-style: normal; font-weight: 400; line-height: 20px;
+                            text-transform: capitalize;">
+                     > Product Detail
+                </span>
+            </div>
+
+            <!-- Right Side:  -->
+            <div style="display: flex; padding: 0 24px; justify-content: flex-end; align-items: center;">
+                <span style="color: var(--color-text-breadcrumbs, #000); font-family: Inter, sans-serif;
+                            font-size: 15px; font-style: normal; font-weight: 400; line-height: 20px;
+                            text-transform: capitalize;">
+                    Total Products : <span id="totalProducts">15</span>
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Filter Section Search -->
+    <div style="display: flex; flex-direction: column; align-items: center; align-self: stretch;">
+
+        <div style="display: flex; height: 50px; justify-content: space-between; align-items: center;
+                align-self: stretch; background: var(--color-background-main, #FFF);">
+
+            <!-- Search Text -->
+            <div style="display: flex; height: 50px; padding: 0 26px; align-items: center;">
+                <span style="color: var(--color-text-section-title, #000);
+                             font-family: Inter, sans-serif;
+                             font-size: 18px;
+                             font-style: normal;
+                             font-weight: 600;
+                             line-height: 24px;">
+                    Search
+                </span>
+            </div>
+
+        </div>
+
+        <div style="display: flex; height: 50px; justify-content: flex-start; align-items: center;
+            align-self: stretch; background: var(--color-background-main, #FFF); padding: 0 26px; gap: 20px;">
+
+            <ul class="nav nav-tabs" id="detailTabs">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-details">DETAILS</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-description">DESCRIPTION</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-specification">SPECIFICATION</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-geometry">GEOMETRY</a></li>
+            </ul>
+            
+        </div>
+
+    </div>
+
+    <!-- TABS -->
+    <div class="container-fluid mt-3" style="padding: 0 26px 0 24px">
+        <div class="tab-content mt-3">
+
+            <!-- DETAILS TAB -->
+            <div class="tab-pane fade show active" id="tab-details">
+                <div class="row g-3">
+
+                    <!-- Details Box -->
+                    <div class="col-lg-4 ">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6 class="fw-bold mb-3">Details</h6>
+
+                            <!-- Title -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Title</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productTitle" class="form-control" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Model -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Model (MPN)</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productMPN" class="form-control" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Year -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Year</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productYear" class="form-control" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Brand -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Brand</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productBrand" class="form-control" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Cost -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Cost</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productCost" class="form-control" readonly>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <!-- Categorisation Box -->
+                    <div class="col-lg-4 ">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6 class="fw-bold mb-3">Categorisation</h6>
+
+                            <!-- Category 1 -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Category 1</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productCategory" class="form-control" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Group Name -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Group Name</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productGroup" class="form-control" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Supplier -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Supplier</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productSupplier" class="form-control" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-3">
+                                    <label class="col-form-label small">Price</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="productPrice" class="form-control" readonly>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <!-- Large Image -->
+                    <div class="col-lg-4 ">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6 class="fw-bold mb-2">Large Image</h6>
+                            <div class="image-box d-flex justify-content-center align-items-center">
+                                <img id="productImage" src="/no-image.png"/>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- DESCRIPTION TAB -->
+            <div class="tab-pane fade" id="tab-description">
+                <div class="border p-3 rounded bg-light">
+
+                    <div id="productDescription" class="small">Loading...</div>
+
+                </div>
+            </div>
+
+            <!-- SPECIFICATION TAB -->
+            <div class="tab-pane fade" id="tab-specification">
+                <div class="border p-3 rounded bg-light">
+                    <pre id="productSpecification" class="small"></pre>
+                </div>
+            </div>
+
+            <!-- GEOMETRY TAB -->
+            <div class="tab-pane fade" id="tab-geometry">
+                <div class="border p-3 rounded bg-light">
+                    <pre id="productGeometry" class="small"></pre>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Settings Button -->
+    <div style="margin-top:15px; display: flex; height: 64px; justify-content: space-between; align-items: center;
+                    align-self: stretch; background: var(--color-background-main, #FFF); margin-bottom:10px;">
+
+        <!-- Left -->
+        <div class="d-flex align-items-center gap-3" style="padding: 0 24px;">
+
+            <button id="prevBtn1" style="background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease;">
+                ◀ PREV
+            </button>
+
+            <span style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                Page
+            </span>
+
+            <input readonly id="pgInput1" style="width: 70px; padding: 8px 8px; font-family: Inter, sans-serif; font-size: 11pt;
+                                color: #555; text-align: center; border: 1px solid #dbdbdb; border-radius: 6px;
+                                outline: none;" value="1" />
+
+            <span id="pgTotal1" style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                of 1
+            </span>
+
+            <button id="nextBtn1" style=" background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; ">
+                NEXT ▶
+            </button>
+
+        </div>
+
+        <!-- Right-->
+        <div style="display: flex; padding: 0 24px; justify-content: flex-end; align-items: center; gap: 14px;position: relative;">
+
+            <div style="display: flex; align-items: center; gap: 10px; font-family: Inter, sans-serif; font-size: 13px; margin-right:10px;">
+                <label class="me-2">Results per Page:</label>
+                <select id="pageSize" class="form-select" style="width: 70px; height: 32px; font-size: 13px; padding: 2px 6px;">
+                    <option>25</option>
+                    <option>50</option>
+                    <option>100</option>
+                    <option>500</option>
+                </select>
+            </div>
+
+            <button id="toggleBtn" onclick="toggleColumnsPopup()"
+                    style=" background: #0080ff; color: white; border: 1px solid #0080ff; border-radius: 9999px;
+                 width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;font-family: Inter, sans-serif;
+                 font-weight: 700; font-size: 9pt; outline: none; box-shadow: none; cursor: pointer;
+                 transition: all 0.2s ease-in-out;"
+                    onmouseover="this.style.background='#0070cc'; this.style.borderColor='#0070cc';"
+                    onmouseout="this.style.background='#0080ff'; this.style.borderColor='#0080ff';">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor"
+                     style="width: 24px; height: 24px;">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+
+            <!-- Popup -->
+            <div id="columnsPopup" style=" display: none; position: absolute; right: 24px; top: 70px; z-index: 10000;
+                                background: #fff; border: 1px solid #dbdbdb;  border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                                padding: 12px; width: 280px; font-family: Inter, sans-serif; ">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="font-size: 14px; font-weight: 700; color: #555;">
+                        Show/Hide Columns
+                    </div>
+                    <button onclick="toggleColumnsPopup()"
+                            style="background: none; border: none; color: #555; font-size: 16px; cursor: pointer;">
+                        ×
+                    </button>
+                </div>
+
+                <!-- Filter -->
+                <input type="text" id="columnFilter" placeholder="Filter columns..."
+                       style="width: 100%; border: 1px solid #ddd; border-radius: 4px;
+                padding: 6px 8px; font-size: 13px; color: #333; margin-bottom: 10px; outline: none;" />
+
+
+                <!-- Checkbox container -->
+                <div id="columnCheckboxList"
+                     style="max-height: 300px; overflow-y: auto; padding-right: 6px;"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TABLE SECTION -->
+    <div style="width:100%; padding: 0 26px 0 24px; overflow-x:auto;">
+        <h5 class="fw-bold mb-3">Related Products (Same Group)</h5>
+        <div id="relatedTable"></div>
+    </div>
+
+    <!-- 🔹 Pagination -->
+    <div class="d-flex align-items-center justify-content-between px-4 mb-3"
+         style="height: 50px; background: #fff; margin-top:20px;">
+
+        <!-- Center: Custom Pagination (Your Styled UI) -->
+        <div class="d-flex align-items-center gap-3">
+
+            <button id="prevBtn" style="background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease;">
+                ◀ PREV
+            </button>
+
+            <span style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                Page
+            </span>
+
+            <input readonly id="pgInput" style="width: 70px; padding: 8px 8px; font-family: Inter, sans-serif; font-size: 11pt;
+                                color: #555; text-align: center; border: 1px solid #dbdbdb; border-radius: 6px;
+                                outline: none;" value="1" />
+
+            <span id="pgTotal" style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                of 1
+            </span>
+
+            <button id="nextBtn" style=" background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; ">
+                NEXT ▶
+            </button>
+
+        </div>
+
+
+        <!-- Right Side (Empty but keeps even spacing like your layout) -->
+        <div></div>
+
+    </div>
+
+
+</div>
+
+<div id="filterPopup" style=" display: none; position:fixed; z-index:10000;background: #fff;
+                      border: 1px solid #dbdbdb;  border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                      padding: 12px; width: 280px; font-family: Inter, sans-serif; ">
+
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="font-size: 14px; font-weight: 700; color: #555;">
+            Filter Mode
+        </div>
+        <button onclick="toggleFilterPopup()" style="background: none; border: none; color: #555; font-size: 16px; cursor: pointer;">
+            ×
+        </button>
+    </div>
+
+    <!-- FilterOptions container -->
+    <div id="filterOptions" style="display:flex; flex-direction:column; padding-right:6px; gap:2px;">
+
+        <!-- Each button has: data-mode + onclick handler -->
+        <button data-mode="like" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Contains</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="starts" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Starts With</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="equals" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Equals</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="ends" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Ends With</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="notlike" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Not Contain</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="notequals" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Not Equals</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+    </div>
+
+
+</div>
+
+
+
+
+<script>
+    const detailApi = "https://simapi.runasp.net/api/Catalogue/GetProductDetailByMPN";
+    const relatedApi = "https://simapi.runasp.net/api/Catalogue/GetProductsByGroup";
+
+    let currentPage = 1;
+    let totalPage = 1;
+    let pageSize = 25;
+
+    async function loadProducts(){
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const mpn = urlParams.get("mpn");
+        if (!mpn) return;
+
+        try {
+            // 🔹 Fetch product detail
+            const response = await fetch(`${detailApi}?mpn=${encodeURIComponent(mpn)}`);
+            if (!response.ok) throw new Error("Failed to fetch product details");
+
+            const productList = await response.json();
+            const product = productList[0];   // <<< THIS WAS MISSING
+
+
+            if (!product) {
+                alert("Product not found!");
+                return;
+            }
+
+            // 🔹 Bind product details safely
+            document.getElementById("productTitle").value = product.title ?? "";
+            document.getElementById("productMPN").value = product.mpn ?? "";
+            document.getElementById("productBrand").value = product.brand ?? "";
+            document.getElementById("productSupplier").value = product.supplier ?? "";
+            document.getElementById("productCost").value = product.cost ?? "";
+            document.getElementById("productPrice").value = product.price ?? "";
+            document.getElementById("productCategory").value = product.category1 ?? "";
+            document.getElementById("productGroup").value = product.groupName ?? "";
+            document.getElementById("productYear").value = product.year ?? "";
+
+            document.getElementById("productDescription").innerHTML = product.description ?? "";
+            document.getElementById("productSpecification").innerText = product.specificationJson ?? "";
+            document.getElementById("productGeometry").innerText = product.geometryJson ?? "";
+
+            // 🔹 Bind breadcrumbs details safely
+            document.getElementById("breadcrumbs").innerText  = `> ${product.year} ${product.brand}`.trim() ?? "";
+
+            if (product.images) {
+                document.getElementById("productImage").src = product.images;
+            }
+
+            // 🔹 Fetch related products
+            if (product.groupName) {
+
+                const relatedRes = await fetch(`${relatedApi}?group=${encodeURIComponent(product.groupName)}`);
+                const relatedData = await relatedRes.json();
+                
+                const totalCount = relatedData.length || 0;
+                const totalPages = Math.ceil(totalCount / pageSize);
+
+                const table = new Tabulator("#relatedTable", {
+
+                    data: relatedData,
+                    layout: "fitData",
+                    height: "450px",
+                    movableColumns: true,
+                    resizableColumns: true,
+
+                    headerSortElement: `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                    aria-hidden="true" class="text-[#d1d1d1]"
+                    style="width:22px;height:22px;">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18"/>
+                    </svg>`,
+                 
+                    columnDefaults: { 
+                        headerSort: true,
+                        minWidth: 80,
+                        height: 80,
+                    },
+
+                    movableRows: false,
+                    tooltips: true,
+                    columns: [
+                        { title: "MPN", field: "mpn", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Title", field: "title", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Brand", field: "brand", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Supplier", field: "supplier", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Size", field: "size", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Colour", field: "colour", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Year", field: "year", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Cost", field: "cost", hozAlign: "right", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Price", field: "price", hozAlign: "right", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Category1", field: "category1", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Category2", field: "category2", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                        { title: "Category3", field: "category3", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                    ],
+                    // rowHeader:
+                    // { 
+                    //     width: 10, headerSort:false, headerFilter: false, resizable: false, frozen:true, headerHozAlign:"center", hozAlign:"center", formatter:"rowSelection", titleFormatter:"rowSelection", 
+                    //     cellClick:function(e, cell)
+                    //     {
+                    //         e.stopPropagation(); 
+                    //         cell.getRow().toggleSelect();
+                    //     }
+                    // },
+                    // selectableRows:true, 
+                    // rowClick:function(e, row){
+                    //     row.toggleSelect();
+                    // },
+                });
+
+
+                // row selection toggle when single clicking
+                table.on("rowClick", function (e, row) {
+
+                    if (!row.isSelected())
+                    {
+                        var selectedRows = table.getSelectedRows(); //get array of currently selected row components.
+                        table.deselectRow(selectedRows[0]);
+
+                        row.select();
+                        const product =  row.getData();
+
+                        document.getElementById("productDescription").innerHTML = product.description ?? "";
+                        if (product.images)
+                        {
+                            document.getElementById("productImage").src = product.images;
+                        }
+                    }
+                    else
+                    {
+                        row.deselect();
+                        document.getElementById("productDescription").innerHTML = "";
+                        document.getElementById("productImage").src = "";
+                    }
+                });
+            
+                // setting toggle
+                const toggleBtn = document.getElementById("toggleBtn");
+
+                const columnMenu = document.getElementById("columnsPopup");
+                const list = document.getElementById("columnCheckboxList");
+
+                table.on("tableBuilt", function () {
+                    list.innerHTML = "";
+                    
+                    table.getColumns().forEach(col => {
+                        const def = col.getDefinition();
+                        if (!def.title) return;
+
+                        // Wrapper for label + checkbox (your design)
+                        const wrapper = document.createElement("label");
+                        wrapper.style.cssText = ` display: flex; align-items: center; gap: 8px; padding: 4px 0; `;
+
+                        // Checkbox
+                        const checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        checkbox.checked = col.isVisible();
+                        checkbox.style.cssText = ` width: 16px; height: 16px; accent-color: #0080ff; cursor: pointer; `;
+                        checkbox.addEventListener("change", () => col.toggle());
+
+                        // Label text
+                        const span = document.createElement("span");
+                        span.textContent = def.title;
+                        span.style.cssText = ` font-size: 12pt; color: #555; cursor: pointer; `;
+
+                        wrapper.appendChild(checkbox);
+                        wrapper.appendChild(span);
+                        list.appendChild(wrapper);
+
+                    });
+
+                });
+
+                // 🔹 Close dropdown when clicking outside
+                document.addEventListener("click", (e) => {
+                    if (!columnMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+                        columnMenu.style.display = "none";
+                        clearColumnFilter();
+                    }
+                });
+
+                // live filtering (show only matching checkboxes)
+                document.getElementById("columnFilter").addEventListener("input", function() {
+                    const search = this.value.toLowerCase();
+                    const items = document.querySelectorAll("#columnCheckboxList label");
+                    items.forEach(label => {
+                        const text = label.textContent.toLowerCase();
+                        label.style.display = text.includes(search) ? "flex" : "none";
+                    });
+                });
+
+                // Update UI
+                document.getElementById("pgTotal").textContent = `of ${totalPages}`;
+                totalPage = totalPages;
+
+                document.getElementById("totalProducts").textContent = `${totalCount}`;
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Error loading product details.");
+        }
+    };
+
+    loadProducts();
+
+    function toggleColumnsPopup() {
+        const popup = document.getElementById("columnsPopup");
+        popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
+        clearColumnFilter();
+    }
+
+    function clearColumnFilter() {
+        const filterInput = document.getElementById("columnFilter");
+        filterInput.value = ""; // clear search text
+
+        // show all checkboxes again
+        document.querySelectorAll("#columnCheckboxList label").forEach(label => {
+            label.style.display = "flex";
+        });
+    }
+
+
+
+    document.getElementById("pageSize").addEventListener("change", (e) => {
+        pageSize = parseInt(e.target.value);
+        currentPage = 1;
+        document.getElementById("pgInput").value = currentPage;
+        loadProducts();
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadProducts();
+            document.getElementById("pgInput").value = currentPage;
+        }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+        if (currentPage < totalPage) {
+            currentPage++;
+            loadProducts();
+            document.getElementById("pgInput").value = currentPage;
+        }
+    });
+
+
+    const prevBtn = document.getElementById("prevBtn");
+
+    prevBtn.onmouseover = () => {
+        prevBtn.style.backgroundColor = "#0070cc";
+        prevBtn.style.borderColor = "#0070cc";
+    };
+
+    prevBtn.onmouseout = () => {
+        prevBtn.style.backgroundColor = "#0080ff";
+        prevBtn.style.borderColor = "#0080ff";
+    };
+
+    const nextBtn = document.getElementById("nextBtn");
+
+    nextBtn.onmouseover = () => {
+        nextBtn.style.backgroundColor = "#0070cc";
+        nextBtn.style.borderColor = "#0070cc";
+    };
+
+    nextBtn.onmouseout = () => {
+        nextBtn.style.backgroundColor = "#0080ff";
+        nextBtn.style.borderColor = "#0080ff";
+    };
+
+    function customHeaderFilter(cell, onRendered, success, cancel) {
+
+        // wrapper — EXACT same structure as your HTML snippet
+        let wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.alignItems = "center";
+        wrapper.style.width = "100%";
+        wrapper.style.marginTop = "5px";
+
+
+        // INPUT
+        let input = document.createElement("input");
+        input.className = "border border-[#dbdbdb] rounded-md px-2 py-2 h-5";
+        input.style.minWidth = "0";
+        input.style.flex = "1 1 100%";
+        //input.style.width = "100%";
+        input.style.fontFamily = "Inter, sans-serif";
+        input.style.fontSize = "11pt";
+        input.style.color = "#555";
+
+        input.addEventListener("keyup", () => {
+            success(input.value);
+        });
+
+        // ICON BUTTON
+        let span = document.createElement("span");
+        span.className = "cursor-pointer";
+        span.style.outline = "none";
+        span.style.flexShrink = "0";
+
+        let btn = document.createElement("button");
+
+        btn.style.marginLeft  = "3px";
+        btn.style.height = "30px";         // EXACT same as h-9 input (36px)
+        btn.style.width = "28px";          // small click area
+        btn.style.cursor = "pointer";
+        btn.style.userSelect = "none";
+        btn.style.border = "none";
+        btn.style.background = "transparent";
+        btn.style.flexShrink = "0";
+
+        btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="text-[#9c9c9c]"
+            style="width:22px; height:22px; color:#DBDBDB">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+        </svg>
+        `;
+
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            showFilterPopup(e, cell, success);
+        });
+
+        // BUILD DOM
+        span.appendChild(btn);
+        wrapper.appendChild(input);
+        wrapper.appendChild(span);
+
+        return wrapper;
+    }
+
+
+    function showFilterPopup(e, cell, success) {
+        const popup = document.getElementById("filterPopup");
+        const table = cell.getTable();
+
+        // Column index & total columns
+        const column = cell.getColumn();
+        const colIndex = table.getColumns().indexOf(column);
+        const totalCols = table.getColumns().length;
+
+        // Base coordinates
+        let left = e.clientX;
+        let top = e.clientY;
+
+        const popupWidth = popup.offsetWidth || 180; // fallback width
+
+        // If column is in last 3 → open to LEFT
+        if (colIndex >= totalCols - 3) {
+            left = e.clientX - popupWidth - 10; // 10px gap on left
+        }
+
+        popup.style.left = left + "px";
+        popup.style.top = top + "px";
+
+        // Toggle visibility
+        popup.style.display =
+            (popup.style.display === "none" || popup.style.display === "")
+                ? "block"
+                : "none";
+
+        // Close on outside click
+        setTimeout(() => {
+            window.onclick = function (evt) {
+                if (!popup.contains(evt.target)) {
+                    popup.style.display = "none";
+                    window.onclick = null;
+                }
+            };
+        }, 50);
+    }
+
+
+    function myFilterFunc(headerValue, rowValue, rowData, params) {
+        if (!headerValue) return true;
+
+        headerValue = headerValue.toLowerCase();
+        rowValue = (rowValue + "").toLowerCase();
+
+        switch (params.mode) {
+            case "like":      return rowValue.includes(headerValue);
+            case "starts":    return rowValue.startsWith(headerValue);
+            case "equals":    return rowValue === headerValue;
+            case "ends":      return rowValue.endsWith(headerValue);
+            case "notlike":   return !rowValue.includes(headerValue);
+            case "notequals": return rowValue !== headerValue;
+            default:          return true;
+        }
+    }
+
+
+    function toggleFilterPopup() {
+        const popup = document.getElementById("filterPopup");
+        popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
+    }
+
+
+    function selectFilterMode(btn) {
+
+        // remove highlight from all buttons
+        document.querySelectorAll('#filterOptions button').forEach(b => {
+            b.dataset.selected = "";
+            b.style.background = "transparent";
+            b.style.color = "#555";
+
+            // remove check icon
+            b.querySelector('.icon-box').innerHTML = "";
+        });
+
+        // highlight selected one
+        btn.dataset.selected = "true";
+        btn.style.background = "#0080ff";
+        btn.style.color = "#fff";
+
+        // add checkmark icon
+        btn.querySelector('.icon-box').innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" fill="none"
+                 style="width:16px;height:16px;color:white;">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+        `;
+    }
+
+
+
+    const bg = document.getElementById("toggleBg");
+    const knob = document.getElementById("toggleKnob");
+    const toggle = document.getElementById("toggleSwitch");
+
+    toggle.addEventListener("click", () => {
+
+        const isOff = knob.getAttribute("x") === "21"; // knob right = OFF
+
+        if (isOff) {
+            // Turn ON → knob left, bg blue
+            knob.setAttribute("x", "1");
+            bg.setAttribute("fill", "#0080FF");
+            bg.setAttribute("stroke", "#0080FF");
+        } else {
+            // Turn OFF → knob right, bg grey
+            knob.setAttribute("x", "21");
+            bg.setAttribute("fill", "#BABABA");
+            bg.setAttribute("stroke", "#BABABA");
+        }
+    });
+
+</script>

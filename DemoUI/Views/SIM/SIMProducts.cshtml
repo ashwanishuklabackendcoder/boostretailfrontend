@@ -80,10 +80,17 @@
             <!-- Left Side: Breadcrumb Path -->
             <div style="display: flex; padding: 0 26px; align-items: center; align-self: stretch;">
                 <!-- Breadcrumbs -->
+                <span style="font-family: Inter, sans-serif;font-size: 15px; font-style: normal; font-weight: 400;
+                             line-height: 20px; cursor:pointer; text-transform: capitalize; margin-right:5px">
+                    <a style="color: var(--color-text-breadcrumbs, #000); text-decoration:none;" href="#">
+                        Sim Products
+                    </a>
+                </span>
+
                 <span style="color: var(--color-text-breadcrumbs, #000); font-family: Inter, sans-serif;
                             font-size: 15px; font-style: normal; font-weight: 400; line-height: 20px;
                             text-transform: capitalize;">
-                    Maintain Sim Products
+                    > Maintain Sim Products
                 </span>
 
             </div>
@@ -458,7 +465,7 @@
 </div>
 
 
-<div id="filterPopup" style=" display: none; position:fixed; z-index:10000;background: #fff;
+<div id="filterPopupString" style=" display: none; position:fixed; z-index:10000;background: #fff;
                       border: 1px solid #dbdbdb;  border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
                       padding: 12px; width: 280px; font-family: Inter, sans-serif; ">
 
@@ -467,13 +474,13 @@
         <div style="font-size: 14px; font-weight: 700; color: #555;">
             Filter Mode
         </div>
-        <button onclick="toggleFilterPopup()" style="background: none; border: none; color: #555; font-size: 16px; cursor: pointer;">
+        <button onclick="toggleFilterPopup(filterPopupString)" style="background: none; border: none; color: #555; font-size: 16px; cursor: pointer;">
             ×
         </button>
     </div>
 
     <!-- FilterOptions container -->
-    <div id="filterOptions" style="display:flex; flex-direction:column; padding-right:6px; gap:2px;">
+    <div class="filterOptions" style="display:flex; flex-direction:column; padding-right:6px; gap:2px;">
 
         <!-- Each button has: data-mode + onclick handler -->
         <button data-mode="like" onclick="selectFilterMode(this)"
@@ -544,6 +551,93 @@
 
     </div>
 
+</div>
+
+<div id="filterPopupNumber" style=" display: none; position:fixed; z-index:10000;background: #fff;
+                      border: 1px solid #dbdbdb;  border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                      padding: 12px; width: 280px; font-family: Inter, sans-serif; ">
+
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="font-size: 14px; font-weight: 700; color: #555;">
+            Filter Mode
+        </div>
+        <button onclick="toggleFilterPopup(filterPopupNumber)" style="background: none; border: none; color: #555; font-size: 16px; cursor: pointer;">
+            ×
+        </button>
+    </div>
+
+    <!-- FilterOptions container -->
+    <div class="filterOptions" style="display:flex; flex-direction:column; padding-right:6px; gap:2px;">
+
+        <!-- Each button has: data-mode + onclick handler -->
+        <button data-mode="equals" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Equals</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="greaterThan" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Greater Than</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="lessThan" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Less Than</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="greaterThanOrEqual" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Greater Than Or Equal</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="lessThanOrEqual" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Less Than Or Equal</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="notequals" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;"
+                onmouseover="if(!this.dataset.selected) this.style.background='#f5f5f5'"
+                onmouseout="if(!this.dataset.selected) this.style.background='transparent'">
+            <span>Not Equals</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+    </div>
 
 </div>
 
@@ -646,7 +740,7 @@
 
 
             // 🔸 Build table with Tabulator instead of manual HTML rows
-            const table = new Tabulator("#productTable", {
+            table = new Tabulator("#productTable", {
 
                 data: products,
                 layout: "fitData",
@@ -666,7 +760,7 @@
                 columnDefaults: {
                      headerSort: true,
                      minWidth: 80,
-                     height: 60,
+                     //height: 60,
                 },
 
                 movableRows: false,
@@ -706,7 +800,11 @@
                         headerFilter: customHeaderFilter,
                         headerFilterFunc: myFilterFunc
                     },
-                    { title: "Brand", field: "brand", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                    {  
+                        title: "Brand", field: "brand", 
+                        headerFilter: customHeaderFilter,
+                        headerFilterFunc: stringFilter,
+                    },
                     { title: "Supplier", field: "supplier", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
                     { title: "Size", field: "size", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
                     { title: "Colour", field: "colour", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
@@ -738,17 +836,6 @@
                     }
 
                 ],
-                // rowHeader:
-                // { 
-                //    width: 10, headerSort:false, headerFilter: false, resizable: false, frozen:true, headerHozAlign:"center", hozAlign:"center", formatter:"rowSelection", titleFormatter:"rowSelection", 
-                //    cellClick:function(e, cell)
-                //    {
-                //        e.stopPropagation();
-                //        cell.getRow().toggleSelect();
-                //    }
-                // },
-                // selectableRows:true,
-                // rowClick: handleRowClick,
             });
 
             let dblClickBlock = false;
@@ -963,7 +1050,6 @@
         });
     }
 
-
     document.getElementById("saveEdit").addEventListener("click", async () => {
         //  FIX: preserve existing categories if not changed
         const cat1Val = document.getElementById("editCat1").value || currentEdit.Cat1Id;
@@ -1002,8 +1088,6 @@
             console.error("Update error:", err);
         }
     });
-
-
 
     document.getElementById("pageSize").addEventListener("change", (e) => {
         pageSize = parseInt(e.target.value);
@@ -1116,6 +1200,14 @@
         input.style.fontSize = "11pt";
         input.style.color = "#555";
 
+        // Store input in column object
+        cell.getColumn()._filterInput = input;
+        // input.addEventListener("keyup", () => {
+        //     console.log("Typed:", input.value);
+        //     success(input.value);
+        // });
+
+
         input.addEventListener("keyup", () => {
             success(input.value);
         });
@@ -1162,13 +1254,38 @@
 
 
     function showFilterPopup(e, cell, success) {
-        const popup = document.getElementById("filterPopup");
+        
         const table = cell.getTable();
 
         // Column index & total columns
         const column = cell.getColumn();
         const colIndex = table.getColumns().indexOf(column);
         const totalCols = table.getColumns().length;
+
+        const colTitle = column.getDefinition().title;
+        console.log(colTitle);
+
+        // Get the correct input for THIS column
+        const input = column._filterInput;
+
+        // Store globally only for popup use
+        currentFilterInput = input;
+
+        let popup;
+        if(colTitle === "Year" || colTitle === "Cost" || colTitle === "Price")
+        {
+            popup = document.getElementById("filterPopupNumber");
+            
+            // auto-close other popup
+            document.getElementById("filterPopupString").style.display = "none";
+        }
+        else
+        { 
+            popup = document.getElementById("filterPopupString");
+
+            // auto-close other popup
+            document.getElementById("filterPopupNumber").style.display = "none";
+        }
 
         // Base coordinates
         let left = e.clientX;
@@ -1219,38 +1336,73 @@
         }
     }
 
+    function stringFilter(headerValue, rowValue, rowData, filterParams) {
+        if (!headerValue) return true;
 
-    function toggleFilterPopup() {
-        const popup = document.getElementById("filterPopup");
-        popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
+        const hv = headerValue.toLowerCase();
+        const rv = (rowValue + "").toLowerCase();
+
+        switch (selectedStringMode) {
+            case "like": return rv.includes(hv);
+            case "starts": return rv.startsWith(hv);
+            case "equals": return rv === hv;
+            case "ends": return rv.endsWith(hv);
+            case "notlike": return !rv.includes(hv);
+            case "notequals": return rv !== hv;
+            default: return true;
+        }
     }
+
+
+
+    function toggleFilterPopup(filter) {
+
+        const popupString = document.getElementById("filterPopupString");
+        const popupNumber = document.getElementById("filterPopupNumber");
+
+        if (filter === "filterPopupString") {
+            popupString.style.display =
+                (popupString.style.display === "none" || popupString.style.display === "")
+                    ? "block"
+                    : "none";
+
+            popupNumber.style.display = "none"; // auto-close other popup
+        }
+        else {
+            popupNumber.style.display =
+                (popupNumber.style.display === "none" || popupNumber.style.display === "")
+                    ? "block"
+                    : "none";
+
+            popupString.style.display = "none"; // auto-close other popup
+        }
+    }
+
+
 
 
     function selectFilterMode(btn) {
 
-        // remove highlight from all buttons
-        document.querySelectorAll('#filterOptions button').forEach(b => {
+        // remove highlight
+        document.querySelectorAll('.filterOptions button').forEach(b => {
             b.dataset.selected = "";
             b.style.background = "transparent";
             b.style.color = "#555";
-
-            // remove check icon
             b.querySelector('.icon-box').innerHTML = "";
         });
 
-        // highlight selected one
+        // highlight selected
         btn.dataset.selected = "true";
         btn.style.background = "#0080ff";
         btn.style.color = "#fff";
 
-        // add checkmark icon
         btn.querySelector('.icon-box').innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg"
-                 viewBox="0 0 24 24" stroke-width="1.5"
-                 stroke="currentColor" fill="none"
-                 style="width:16px;height:16px;color:white;">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="m4.5 12.75 6 6 9-13.5" />
+                  viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" fill="none"
+                  style="width:16px;height:16px;color:white;">
+                 <path stroke-linecap="round" stroke-linejoin="round"
+                       d="m4.5 12.75 6 6 9-13.5" />
             </svg>
         `;
     }

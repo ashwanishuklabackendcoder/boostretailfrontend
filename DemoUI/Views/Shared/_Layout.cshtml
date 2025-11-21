@@ -17,6 +17,14 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.1/dist/css/tabulator_bootstrap5.min.css">
 
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
+
+
+
+
     <!-- ========== Figma NAVIGATION + SPACING STYLE ========== -->
     <style>
         :root {
@@ -281,15 +289,16 @@
 
         /* togglr */
         #sidebar {
-            transition: width 0.3s ease;
+            transition: width 0.3s ease, margin-left 0.3s ease;
         }
 
         #sidebar.collapsed {
-            width: 0px; /* or 60px / 50px depending on your design */
+            width: 0 !important;
+            overflow: hidden;
         }
 
         #main-content {
-            transition: all 0.5s ease-in-out;
+            transition: margin-left 0.3s ease;
         }
 
     </style>

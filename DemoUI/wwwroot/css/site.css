@@ -59,6 +59,15 @@ html, body {
         border-color: #fff;
     }
 
+    .supplier-table tr.active-row .delete-btn {
+        border-color: #fff !important;
+    }
+
+    .supplier-table tr.active-row .delete-btn i {
+        color: #fff !important;
+    }
+
+
     .supplier-table .form-control-sm {
         height: 28px;
         font-size: 0.85rem;
@@ -188,10 +197,10 @@ html, body {
             background-color: #0d6efd;
             color: white;
         }
-
-            .category-item.selected .action-icons a {
-                color: white;
-            }
+        
+        .category-item.selected .action-icons a {
+            color: white;
+        }
 
     .toggle-icon {
         margin-right: 8px;
@@ -199,6 +208,10 @@ html, body {
         text-align: center;
         color: #6c757d;
     }
+
+        .toggle-icon.selected {
+            color: white;
+        }
 
         .toggle-icon.invisible {
             visibility: hidden;
@@ -220,7 +233,7 @@ html, body {
 
     .details-panel {
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
         height: auto;
         min-height: 200px;

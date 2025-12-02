@@ -112,7 +112,7 @@
             <div class="row">
 
                 <div class="col-md-5" >
-                    <div style="min-height:75vh;" class="category-tree-panel bg-white">
+                    <div style="height:75vh; overflow-y:auto;" class="category-tree-panel bg-white">
 
                         <div class="category-tree-header">
                             <div class="d-flex">
@@ -280,7 +280,7 @@
                 `);
 
                 $('#btnCancel').on('click', function () {
-                    detailsPanel.html(`<p>Select a category to edit its details.</p>`);
+                    detailsPanel.html(`<p class="p-3">Select a category to edit its details.</p>`);
                 });
 
                 $('#btnSaveSub').on('click', function () {
@@ -334,7 +334,7 @@
             `);
 
             $('#btnCancel').on('click', function () {
-                detailsPanel.html(`<p>Select a category to edit its details.</p>`);
+                detailsPanel.html(`<p class="p-3">Select a category to edit its details.</p>`);
             });
 
             $('#btnUpdateCat').on('click', function () {
@@ -387,7 +387,7 @@
                 `);
 
                 $('#btnCancel').on('click', function () {
-                    detailsPanel.html(`<p>Select a category to edit its details.</p>`);
+                    detailsPanel.html(`<p class="p-3">Select a category to edit its details.</p>`);
                 });
 
                 $('#btnConfirmDelete').on('click', function () {

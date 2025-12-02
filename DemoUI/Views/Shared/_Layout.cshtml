@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DemoUI</title>
+    <title>@ViewData["Title"]</title>
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -160,6 +160,7 @@
             justify-content: center;
             cursor: pointer;
             background-color: var(--top-selected);
+            /* background-color: var(--top-unselected); */
             color: #fff;
             gap: 3px;
             flex-shrink: 0;
@@ -206,7 +207,7 @@
                 background-color: #f5f5f5;
             }
 
-        .submenu-list a {
+        /* .submenu-list a {
             text-decoration: none;
             color: #333;
             font-size: 0.9rem;
@@ -214,7 +215,7 @@
 
             .submenu-list a:hover {
                 text-decoration: underline;
-            }
+            } */
 
         .chevron {
             transition: transform 0.2s ease;
@@ -287,7 +288,19 @@
             border-radius: 10px;
         }
 
-        /* togglr */
+        .product-popup {
+            position: fixed;
+            top: 80px; /* adjust */
+            left: 80px; /* adjust according sidebar width */
+            width: 300px;
+            background: white;
+            z-index: 9999 !important;
+            display: none;
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        /* toggle */
         #sidebar {
             transition: width 0.3s ease, margin-left 0.3s ease;
         }
@@ -323,13 +336,9 @@
 
                 <!-- LEFT SECTION -->
                 <div style="display: flex; align-items: center;">
-                    <span style="color: var(--color-text-navigation-header, #FFF);
-                 font-family: Inter, sans-serif;
-                 font-size: 23px;
-                 font-style: normal;
-                 font-weight: 600;
-                 line-height: 32px;
-                 text-transform: capitalize; width: 200px;">
+                    <span style="color: var(--color-text-navigation-header, #FFF); font-family: Inter, sans-serif;
+                          font-size: 23px; font-style: normal; font-weight: 600; line-height: 32px;
+                          text-transform: capitalize; width: 200px;">
                         Dashboard
                     </span>
                 </div>
@@ -370,7 +379,7 @@
             <div class="nav-buttons">
                 @if (role == "User")
                 {
-                    <button class="nav-btn selected" title="Analytics">
+                    <button class="nav-btn" title="Analytics">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                         </svg>
@@ -440,14 +449,16 @@
         <!-- =================== SIDEBAR =================== -->
         <div id="sidebar" class="side-nav" role="navigation">
 
-            <a asp-controller="Home" asp-action="Index" class="nav-btn" title="Dashboard">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-                </svg>
-            </a>
+            
 
             @if (role != "User")
             {
+                <a asp-controller="Home" asp-action="Index" class="nav-btn" title="Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                    </svg>
+                </a>
+
                 <button id="simMenuBtn" class="nav-btn" title="SIM" aria-expanded="false" aria-controls="simSubMenu">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
@@ -456,13 +467,23 @@
             }
             else
             {
-                <a asp-controller="Products" asp-action="ProductsSearch" class="nav-btn" title="Search">
+                <a class="nav-btn" title="Customers">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                     </svg>
                 </a>
-                <a asp-controller="Products" asp-action="UserProducts" class="nav-btn" title="Products">
-                    <svg viewBox="0 0 24 24"><path d="M3 6h18v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6zm3-3h12v2H6V3z" /></svg>
+
+                <button id="productMenuBtn" class="nav-btn" title="Products" aria-expanded="false" aria-controls="productSubMenu">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
+                    </svg>
+                </button>
+
+                <a class="nav-btn" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                    </svg>
                 </a>
             }
 
@@ -491,7 +512,6 @@
     </div>
 
     <!-- SIM Submenu -->
-
     <div id="simSubMenu" class="sim-popup  bg-white text-dark shadow  p-3 rounded">
 
         <h6 class="fw-bold mb-3">SIM</h6>
@@ -564,6 +584,67 @@
 
     </div>
 
+    <!-- Product Submenu -->
+    <div id="productSubMenu" class="product-popup  bg-white text-dark shadow  p-3 rounded">
+
+        <h6 class="fw-bold mb-3">Products</h6>
+
+        <ul class="list-unstyled m-0">
+
+            <!-- Catalog Setup -->
+            <li class="submenu-item mb-2">
+                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#catalogSetupSub">
+                    <span>Catalog Setup</span>
+                    <span class="dropdown-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </span>
+                </div>
+                <ul id="catalogSetupSub" class="submenu-list ms-3 mt-2" style="display:none;">
+                    <li><a asp-controller="Products" asp-action="ProductsSearch" class="text-dark d-block py-1">Manage Products</a></li>
+                    <li><a class="text-dark d-block py-1">Uncategorised</a></li>
+                    <li><a class="text-dark d-block py-1">Data Issues</a></li>
+                </ul>
+            </li>
+
+            <!-- Data Imports -->
+            <li class="submenu-item mb-2">
+                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#dataImportsSub">
+                    <span>Data Imports</span>
+                    <span class="dropdown-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </span>
+                </div>
+                <ul id="dataImportsSub" class="submenu-list ms-3 mt-2" style="display:none;">
+                    <li><a class="text-dark d-block py-1">Product Feeds</a></li>
+                    <li><a class="text-dark d-block py-1">Stock Feeds</a></li>
+                    <li><a class="text-dark d-block py-1">EPOS Upload</a></li>
+                </ul>
+            </li>
+
+            <!-- Tools -->
+            <li class="submenu-item mb-2">
+                <div class="d-flex justify-content-between align-items-center submenu-header" data-target="#toolsSub">
+                    <span>Tools</span>
+                    <span class="dropdown-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </span>
+                </div>
+                <ul id="toolsSub" class="submenu-list ms-3 mt-2" style="display:none;">
+                    <li><a class="text-dark d-block py-1">Print Labels</a></li>
+                    <li><a class="text-dark d-block py-1">Price Match</a></li>
+                </ul>
+            </li>
+
+        </ul>
+
+    </div>
+
 
     <!-- =================== SCRIPTS =================== -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -579,6 +660,8 @@
             const simMenu = document.getElementById("simSubMenu");
             const main = document.getElementById("main");
 
+            const productBtn = document.getElementById("productMenuBtn");
+            const productMenu = document.getElementById("productSubMenu");
 
             window.toggleSidebar = function () {
 
@@ -622,6 +705,39 @@
                     }
                 });
             }
+
+
+            // Product submenu toggle
+            if (productBtn && productMenu) {
+
+                productBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+
+                    const visible = productMenu.style.display === "block";
+
+                    // Toggle
+                    productMenu.style.display = visible ? "none" : "block";
+                    productMenu.setAttribute("aria-expanded", visible ? "false" : "true");
+
+                    // ⭐ Position submenu relative to the button
+                    if (!visible) {
+                        const rect = productBtn.getBoundingClientRect();
+                        productMenu.style.position = "fixed";
+                        productMenu.style.top = "70px";
+                        productMenu.style.left = rect.right + 10  + "px";
+                    }
+                    
+                });
+
+                document.addEventListener("click", (e) => {
+                    if (!productMenu.contains(e.target) && e.target !== productBtn) {
+                        productMenu.style.display = "none";
+                        productBtn.setAttribute("aria-expanded", "false");
+                    }
+                });
+            }
+        
+        
         });
 
 
@@ -656,6 +772,55 @@
 
         function closeAllSubmenus() {
             document.querySelectorAll('#simSubMenu .submenu-header').forEach(header => {
+                const targetId = header.getAttribute('data-target');
+                const targetList = document.querySelector(targetId);
+                const icon = header.querySelector('.chevron');
+
+                // Hide each list
+                if (targetList) {
+                    targetList.style.display = "none";
+                }
+
+                // Remove icon rotation
+                if (icon) {
+                    icon.classList.remove("rotate");
+                }
+            });
+        }
+
+
+
+        // Dropdown toggles for product submenu
+        document.querySelectorAll('#productSubMenu .submenu-header').forEach(header => {
+            header.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const targetList = document.querySelector(targetId);
+                const icon = this.querySelector('.chevron');
+                //const dropdown = this.querySelector('.dropdown-arrow');
+
+                if (targetList.style.display === "none" || targetList.style.display === "") {
+
+                    targetList.style.display = "block";
+                    icon.classList.add("rotate");
+                } else {
+                    targetList.style.display = "none";
+                    icon.classList.remove("rotate");
+                }
+            });
+
+            document.addEventListener("click", function (e) {
+
+                const productSubMenu = document.getElementById("productSubMenu");
+
+                // If clicked OUTSIDE submenu → remove rotation from all icons
+                if (!productSubMenu.contains(e.target)) {
+                    closeAllProductSubmenus();
+                }
+            });
+        });
+
+        function closeAllProductSubmenus() {
+            document.querySelectorAll('#productSubMenu .submenu-header').forEach(header => {
                 const targetId = header.getAttribute('data-target');
                 const targetList = document.querySelector(targetId);
                 const icon = header.querySelector('.chevron');

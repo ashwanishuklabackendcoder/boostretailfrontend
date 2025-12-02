@@ -705,6 +705,7 @@
     let pageSize = 25;
     let currentEdit = {}; // ✅ FIX: store current product being edited
 
+    // let table = null;
     async function loadProducts() {
 
         const token = localStorage.getItem("JWToken");
@@ -781,7 +782,7 @@
 
                         },
                         headerFilter: customHeaderFilter,
-                        headerFilterFunc: myFilterFunc
+                        headerFilterFunc: stringFilter
                     },
                     {
                         title: "Title",
@@ -798,22 +799,23 @@
                             `;
                         },
                         headerFilter: customHeaderFilter,
-                        headerFilterFunc: myFilterFunc
+                        headerFilterFunc: stringFilter
                     },
                     {  
                         title: "Brand", field: "brand", 
                         headerFilter: customHeaderFilter,
                         headerFilterFunc: stringFilter,
+                        headerFilterLiveFilter: false,
                     },
-                    { title: "Supplier", field: "supplier", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
-                    { title: "Size", field: "size", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
-                    { title: "Colour", field: "colour", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
-                    { title: "Year", field: "year", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
-                    { title: "Cost", field: "cost", hozAlign: "right", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
-                    { title: "Price", field: "price", hozAlign: "right", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
-                    { title: "Category1", field: "category1", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
-                    { title: "Category2", field: "category2", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
-                    { title: "Category3", field: "category3", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc},
+                    { title: "Supplier", field: "supplier", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
+                    { title: "Size", field: "size", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
+                    { title: "Colour", field: "colour", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
+                    { title: "Year", field: "year", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
+                    { title: "Cost", field: "cost", hozAlign: "right", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
+                    { title: "Price", field: "price", hozAlign: "right", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
+                    { title: "Category1", field: "category1", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
+                    { title: "Category2", field: "category2", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
+                    { title: "Category3", field: "category3", headerFilter: customHeaderFilter, headerFilterFunc: stringFilter},
                     {
                         title: "Action",
                         headerSort: false,
@@ -963,9 +965,12 @@
                     // Checkbox
                     const checkbox = document.createElement("input");
                     checkbox.type = "checkbox";
+                    checkbox.classList.add("column-visibility-checkbox");   // <<< ADD THIS
                     checkbox.checked = col.isVisible();
                     checkbox.style.cssText = ` width: 16px; height: 16px; accent-color: #0080ff; cursor: pointer; `;
                     checkbox.addEventListener("change", () => col.toggle());
+
+
 
                     // Label text
                     const span = document.createElement("span");
@@ -984,7 +989,8 @@
             document.addEventListener("click", (e) => {
                 if (!columnMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
                     columnMenu.style.display = "none";
-                     clearColumnFilter();
+                    clearColumnFilter();
+                    resetAllColumnCheckboxes();
                 }
             });
 
@@ -1123,6 +1129,7 @@
         const popup = document.getElementById("columnsPopup");
         popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
         clearColumnFilter();
+        resetAllColumnCheckboxes();
     }
 
     function clearColumnFilter() {
@@ -1134,6 +1141,19 @@
             label.style.display = "flex";
         });
     }
+
+    function resetAllColumnCheckboxes() {
+        // Show all columns in Tabulator
+        table.getColumns().forEach(col => col.show());
+
+        // Re-check all checkboxes in your column menu
+        setTimeout(() => {
+            const checkboxes = document.querySelectorAll(".column-visibility-checkbox");
+            checkboxes.forEach(cb => cb.checked = true);
+        }, 0);
+
+    }
+
 
 
     // pagination
@@ -1178,9 +1198,12 @@
     };
 
 
-
+    let currentFilterInput;
+    let currentFilterColumn;
     // custome hedaer filter 
     function customHeaderFilter(cell, onRendered, success, cancel) {
+
+        let column = cell.getColumn();
 
         // wrapper — EXACT same structure as your HTML snippet
         let wrapper = document.createElement("div");
@@ -1200,17 +1223,14 @@
         input.style.fontSize = "11pt";
         input.style.color = "#555";
 
-        // Store input in column object
-        cell.getColumn()._filterInput = input;
-        // input.addEventListener("keyup", () => {
-        //     console.log("Typed:", input.value);
-        //     success(input.value);
-        // });
-
-
         input.addEventListener("keyup", () => {
             success(input.value);
         });
+
+        // SAVE references for popup
+        currentFilterColumn = column;     // store tabulator ColumnComponent
+        currentFilterInput = input;       // store the input element
+        column._filterInput = input;  // <<< store the input inside the column object
 
         // ICON BUTTON
         let span = document.createElement("span");
@@ -1252,7 +1272,7 @@
         return wrapper;
     }
 
-
+    
     function showFilterPopup(e, cell, success) {
         
         const table = cell.getTable();
@@ -1263,7 +1283,6 @@
         const totalCols = table.getColumns().length;
 
         const colTitle = column.getDefinition().title;
-        console.log(colTitle);
 
         // Get the correct input for THIS column
         const input = column._filterInput;
@@ -1319,37 +1338,78 @@
     }
 
 
-    function myFilterFunc(headerValue, rowValue, rowData, params) {
-        if (!headerValue) return true;
+    // function myFilterFunc(headerValue, rowValue, rowData, params) {
+    //     if (!headerValue) return true;
 
-        headerValue = headerValue.toLowerCase();
-        rowValue = (rowValue + "").toLowerCase();
+    //     headerValue = headerValue.toLowerCase();
+    //     rowValue = (rowValue + "").toLowerCase();
 
-        switch (params.mode) {
-            case "like":      return rowValue.includes(headerValue);
-            case "starts":    return rowValue.startsWith(headerValue);
-            case "equals":    return rowValue === headerValue;
-            case "ends":      return rowValue.endsWith(headerValue);
-            case "notlike":   return !rowValue.includes(headerValue);
-            case "notequals": return rowValue !== headerValue;
-            default:          return true;
-        }
+    //     switch (params.mode) {
+    //         case "like":      return rowValue.includes(headerValue);
+    //         case "starts":    return rowValue.startsWith(headerValue);
+    //         case "equals":    return rowValue === headerValue;
+    //         case "ends":      return rowValue.endsWith(headerValue);
+    //         case "notlike":   return !rowValue.includes(headerValue);
+    //         case "notequals": return rowValue !== headerValue;
+    //         default:          return true;
+    //     }
+    // }
+
+    // function stringFilter(headerValue, rowValue, rowData, filterParams) {
+
+    //     console.log("Filter started");
+
+    //     if (!headerValue) return true;
+
+    //     const hv = headerValue.toLowerCase().trim();
+    //     const rv = (rowValue + "").toLowerCase().trim();
+
+    //     switch (selectedStringMode) {
+    //         case "like": return rv.includes(hv);
+    //         case "starts": return rv.startsWith(hv);
+    //         case "equals": return rv === hv;
+    //         case "ends": return rv.endsWith(hv);
+    //         case "notlike": return !rv.includes(hv);
+    //         case "notequals": return rv !== hv;
+    //         default: return true;
+    //     }
+    // }
+
+    function normalizedString(v) {
+        if (v == null) return "";
+        let s = String(v).replace(/\u00A0/g, " ");
+        if (s.normalize) s = s.normalize("NFKC");
+        return s.trim();
     }
 
     function stringFilter(headerValue, rowValue, rowData, filterParams) {
-        if (!headerValue) return true;
 
-        const hv = headerValue.toLowerCase();
-        const rv = (rowValue + "").toLowerCase();
+        // extract real string
+        let hv = "";
 
-        switch (selectedStringMode) {
-            case "like": return rv.includes(hv);
-            case "starts": return rv.startsWith(hv);
-            case "equals": return rv === hv;
-            case "ends": return rv.endsWith(hv);
-            case "notlike": return !rv.includes(hv);
-            case "notequals": return rv !== hv;
-            default: return true;
+        if (typeof headerValue === "string") {
+            hv = headerValue;
+        }
+        else if (headerValue && typeof headerValue.value === "string") {
+            hv = headerValue.value;
+        }
+
+        // empty = no filter
+        if (!hv) return true;
+
+        const rv = normalizedString(rowValue).toLowerCase();
+        hv = normalizedString(hv).toLowerCase();
+
+        const mode = (headerValue && headerValue.mode) ? headerValue.mode : "like";
+
+        switch (mode) {
+            case "like":       return rv.includes(hv);
+            case "starts":     return rv.startsWith(hv);
+            case "equals":     return rv === hv;
+            case "ends":       return rv.endsWith(hv);
+            case "notlike":    return !rv.includes(hv);
+            case "notequals":  return rv !== hv;
+            default:           return true;
         }
     }
 
@@ -1379,8 +1439,7 @@
     }
 
 
-
-
+    let selectedStringMode;
     function selectFilterMode(btn) {
 
         // remove highlight
@@ -1405,6 +1464,39 @@
                        d="m4.5 12.75 6 6 9-13.5" />
             </svg>
         `;
+
+
+
+         // SAVE MODE GLOBALLY
+        selectedStringMode = btn.dataset.mode;   // like, starts, equals, ends...
+        console.log("Mode ",selectedStringMode);
+
+
+        // GET CURRENT COLUMN INPUT (saved earlier)
+        // Re-apply filter on the column after mode selection
+        if (currentFilterColumn && currentFilterInput) {
+
+            // current column instance
+            let col = currentFilterColumn;
+
+            // current value user typed
+            let val = currentFilterInput.value;
+            console.log("val ",val);
+            // table.getColumn("brand").setHeaderFilterValue("Rockshox")
+
+            // Pass BOTH value and mode to Tabulator
+            col.setHeaderFilterValue({
+                value: val,
+                mode: btn.dataset.mode
+            });
+
+             // Make sure Tabulator re-runs all filters
+            let table = col.getTable();
+            table.refreshFilter();
+        }
+
+        // CLOSE POPUP
+        document.getElementById("filterPopupString").style.display = "none";
     }
 
 

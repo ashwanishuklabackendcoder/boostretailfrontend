@@ -1,7 +1,280 @@
 ﻿@{
     ViewData["Title"] = "SIM Products";
 }
-<div class="section-title"><h4 class="m-0">My Products</h4></div>
+
+
+<!-- Main Content Wrapper -->
+<div class="container-fluid p-0" style="width:100%; overflow-x:hidden;">
+
+    <!-- Page Top My Products (Header area) -->
+    <div style="display: flex; flex-direction: column; align-items: center; align-self: stretch;">
+
+        <!-- My Products Title Bar (under Page Top) -->
+        <div style="display: flex; height: 64px; justify-content: space-between; align-items: center;
+                    align-self: stretch; border-bottom: 1px solid var(--color-border-horizontal-lines, #DBDBDB);
+                    background: var(--color-background-main, #FFF);">
+
+            <!-- Left My Products (Inside Page Title Bar) -->
+            <div style="display: flex; height: 64px; padding: 0 26px; align-items: center;">
+
+                <div style="display: flex; align-items: center;">
+                    <span style="color: var(--color-text-section-title, #000); font-family: Inter, sans-serif;
+                          font-size: 18px; font-style: normal; font-weight: 600;
+                          line-height: 24px; text-transform: uppercase;">
+                        My Products
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- Right Section (Inside Page Title Bar) -->
+            <div style="display: flex; padding: 0 24px; justify-content: flex-end; align-items: center; gap: 14px;">
+
+                <div style="display: flex; align-items: center;">
+                    <span style="color: var(--color-text-section-title, #000); text-align: right;
+                          font-family: Inter, sans-serif; font-size: 15px; font-style: normal; font-weight: 500;
+                          line-height: 18px;">
+                        Advanced Mode
+                    </span>
+                </div>
+
+                <!-- Toggle Button Container -->
+                <div id="toggleContainer"
+                     style="user-select:none;display: flex; width: 42px; height: 22px; align-items: center; cursor: pointer;">
+
+                    <svg id="toggleSwitch" width="42" height="22" viewBox="0 0 42 22" style="cursor:pointer">
+
+                        <!-- Background (OFF default) -->
+                        <rect id="toggleBg"
+                              x="1" y="1"
+                              width="40" height="20"
+                              rx="10"
+                              fill="#BABABA"
+                              stroke="#BABABA"
+                              stroke-width="2"
+                              style="transition: fill 0.25s;" />
+
+                        <!-- Knob (RIGHT default) -->
+                        <rect id="toggleKnob"
+                              x="21"
+                              y="2"
+                              width="18" height="18"
+                              rx="9"
+                              fill="white"
+                              style="transition: all 0.25s;" />
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Breadcrumb Bar -->
+        <div style="display: flex; height: 50px; justify-content: space-between; align-items: center;
+            align-self: stretch; border-bottom: 1px solid var(--color-border-horizontal-lines, #DBDBDB);
+            background: var(--color-background-main, #FFF);">
+
+            <!-- Left Side: Breadcrumb Path -->
+            <div style="display: flex; padding: 0 26px; align-items: center; align-self: stretch;">
+                <!-- Breadcrumbs -->
+                <span style="font-family: Inter, sans-serif;font-size: 15px; font-style: normal; font-weight: 400;
+                             line-height: 20px; cursor:pointer; text-transform: capitalize; margin-right:5px">
+                    <a style="color: var(--color-text-breadcrumbs, #000); text-decoration:none;" href="#">
+                        My Products
+                    </a>
+                </span>
+
+                <span style="color: var(--color-text-breadcrumbs, #000); font-family: Inter, sans-serif;
+                            font-size: 15px; font-style: normal; font-weight: 400; line-height: 20px;
+                            text-transform: capitalize;">
+                    > Maintain Products
+                </span>
+
+            </div>
+
+            <!-- Right Side:  -->
+            <div style="display: flex; padding: 0 24px; justify-content: flex-end; align-items: center;">
+                <span style="color: var(--color-text-breadcrumbs, #000); font-family: Inter, sans-serif;
+                            font-size: 15px; font-style: normal; font-weight: 400; line-height: 20px;
+                            text-transform: capitalize;">
+                    Total Products : <span id="totalProducts">500,000</span>
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Filter Section Search -->
+    <div style="display: flex; flex-direction: column; align-items: center; align-self: stretch;">
+
+        <!-- 🔹 Filter Section -->
+        <div style="display: flex; height: 50px; justify-content: space-between; align-items: center;
+                align-self: stretch; background: var(--color-background-main, #FFF);">
+
+            <!-- Search Text -->
+            <div style="display: flex; height: 50px; padding: 0 26px; align-items: center;">
+                <span style="color: var(--color-text-section-title, #000);
+                             font-family: Inter, sans-serif;
+                             font-size: 18px;
+                             font-style: normal;
+                             font-weight: 600;
+                             line-height: 24px;">
+                    Search
+                </span>
+            </div>
+
+        </div>
+
+
+        <div style="display: flex; height: 50px; justify-content: space-between; align-items: center;
+            align-self: stretch; background: var(--color-background-main, #FFF); padding: 0 26px; gap: 20px;">
+
+            <!-- Left - Filter Section -->
+            <div class="d-flex align-items-center gap-3">
+
+                <!-- Search Input -->
+                <input type="text" id="searchBox" class="form-control"
+                       placeholder="Enter MPN / Barcode / Title / Model"
+                       style="width: 400px;" />
+
+                <!-- SVG Icon -->
+                <div style="cursor: pointer; display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                         width="22" height="22">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                    </svg>
+                </div>
+
+                <!-- Categorized -->
+                <div id="categorized" class="form-check" style="display: flex; align-items: center; gap: 10px; margin: 0; padding: 0;">
+                    <input class="form-check-input" type="checkbox" id="categorized"
+                           style="margin: 0; position: relative; top: 0;">
+                    <label class="form-check-label" for="categorized"
+                           style="margin: 0; line-height: 1; display: flex; align-items: center; font-size: 15px;
+                       font-family: Inter, sans-serif;">
+                        Categorized
+                    </label>
+                </div>
+
+
+                <!-- Uncategorized -->
+                <div id="uncategorized" class="form-check" style="display: flex; align-items: center; gap: 10px; margin: 0; padding: 0;">
+                    <input class="form-check-input" type="checkbox" id="uncategorized"
+                           style="margin: 0; position: relative; top: 0;">
+                    <label class="form-check-label" for="uncategorized"
+                           style="margin: 0; line-height: 1; display: flex; align-items: center; font-size: 15px;
+                       font-family: Inter, sans-serif;">
+                        Uncategorized
+                    </label>
+                </div>
+
+                <!-- Single per Model -->
+                <div id="singleResult" class="form-check" style="display: flex; align-items: center; gap: 10px; margin: 0; padding: 0;">
+                    <input class="form-check-input" type="checkbox" id="singleResult"
+                           style="margin: 0; position: relative; top: 0;">
+                    <label class="form-check-label" for="singleResult"
+                           style="margin: 0; line-height: 1; display: flex; align-items: center; font-size: 15px;
+                       font-family: Inter, sans-serif;">
+                        Single per Model
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- Right - Page Selction Dropdown -->
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 14px;position: relative;">
+
+                <div style="display: flex; align-items: center; gap: 10px; font-family: Inter, sans-serif; font-size: 13px;">
+                    <label class="me-2">Results per Page:</label>
+                    <select id="pageSize" class="form-select" style="width: 70px; height: 32px; font-size: 13px; padding: 2px 6px;">
+                        <option>25</option>
+                        <option>50</option>
+                        <option>100</option>
+                        <option>500</option>
+                    </select>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="container-fluid mt-3">
+
+        <!-- 🔹 Table -->
+        <div class="table-responsive scroll-table">
+            <table class="table table-striped table-bordered" id="productTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>MPN</th>
+                        <th>Title</th>
+                        <th>Brand</th>
+                        <th>Supplier</th>
+                        <th>Size</th>
+                        <th>Colour</th>
+                        <th>Year</th>
+                        <th>Cost</th>
+                        <th>Price</th>
+                        <th>Category1</th>
+                        <th>Category2</th>
+                        <th>Category3</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- 🔹 Pagination -->
+    <div class="d-flex align-items-center justify-content-between px-4 mb-3"
+         style="height: 50px; background: #fff; margin-top:20px;">
+
+        <!-- Center: Custom Pagination (Your Styled UI) -->
+        <div class="d-flex align-items-center gap-3">
+
+            <button id="prevBtn" style="background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease;">
+                ◀ PREV
+            </button>
+
+            <span style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                Page
+            </span>
+
+            <input readonly id="pgInput" style="width: 70px; padding: 8px 8px; font-family: Inter, sans-serif; font-size: 11pt;
+                                color: #555; text-align: center; border: 1px solid #dbdbdb; border-radius: 6px;
+                                outline: none;" value="1" />
+
+            <span id="pgTotal" style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                of 1
+            </span>
+
+            <button id="nextBtn" style=" background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; ">
+                NEXT ▶
+            </button>
+
+        </div>
+
+
+        <!-- Right Side (Empty but keeps even spacing like your layout) -->
+        <div></div>
+
+    </div>
+
+</div>
+
+@* <div class="section-title"><h4 class="m-0">My Products</h4></div>
 <div class="breadcrumb-bar">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb m-0 bg-transparent">
@@ -9,77 +282,14 @@
             <li class="breadcrumb-item active" aria-current="page">Maintain Products</li>
         </ol>
     </nav>
-</div>
-<div class="container-fluid mt-3">
+</div> *@
 
 
-    <!-- 🔹 Filter Section -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
-        <div class="d-flex flex-wrap align-items-center gap-2">
-            <input type="text" id="searchBox" class="form-control" placeholder="Enter MPN / Barcode / Title / Model" style="width: 280px;" />
 
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="categorized">
-                <label class="form-check-label" for="categorized">Categorized</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="uncategorized">
-                <label class="form-check-label" for="uncategorized">Uncategorized</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="singleResult">
-                <label class="form-check-label" for="singleResult">Single per Model</label>
-            </div>
-        </div>
 
-        <div>
-            <label class="me-2">Results per Page:</label>
-            <select id="pageSize" class="form-select d-inline-block" style="width: 100px;">
-                <option>50</option>
-                <option>100</option>
-                <option>200</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- 🔹 Table -->
-    <div class="table-responsive scroll-table">
-        <table class="table table-striped table-bordered" id="productTable">
-            <thead class="table-dark">
-                <tr>
-                    <th>MPN</th>
-                    <th>Title</th>
-                    <th>Brand</th>
-                    <th>Supplier</th>
-                    <th>Size</th>
-                    <th>Colour</th>
-                    <th>Year</th>
-                    <th>Cost</th>
-                    <th>Price</th>
-                    <th>Category1</th>
-                    <th>Category2</th>
-                    <th>Category3</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <!-- 🔹 Pagination -->
-    <div class="d-flex justify-content-between align-items-center mt-2">
-        <div>
-            <button type="button" class="btn btn-outline-primary rounded-pill me-2" id="prevBtn">Prev</button>
-            <button type="button" class="btn btn-outline-primary rounded-pill" id="nextBtn">Next</button>
-        </div>
-        <span id="paginationInfo" class="fw-bold">Page 1</span>
-    </div>
-</div>
-
-<!-- 🔹 Edit Modal -->
 <!-- 🔹 Edit Modal -->
 <div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title">Edit Product</h5>
@@ -135,7 +345,7 @@
     const apiCategoriesUrl = "https://simapi.runasp.net/api/Category/GetCategoryByParentId";
 
     let currentPage = 1;
-    let pageSize = 50;
+    let pageSize = 25;
     let currentEdit = {}; // ✅ FIX: store current product being edited
 
     async function loadProducts() {
@@ -193,16 +403,21 @@
                     </tr>`;
             });
 
-            document.getElementById("paginationInfo").innerText =
-                `Page ${currentPage} of ${totalPages} | Total: ${totalCount}`;
-            document.getElementById("prevBtn").disabled = currentPage === 1;
-            document.getElementById("nextBtn").disabled = currentPage >= totalPages;
+
+            // document.getElementById("paginationInfo").innerText =
+            //     `Page ${currentPage} of ${totalPages} | Total: ${totalCount}`;
+
+            document.getElementById("pgTotal").textContent = `of ${totalPages}`;
+            totalPage = totalPages;
+            document.getElementById("totalProducts").textContent = totalCount;
+
+            // document.getElementById("prevBtn").disabled = currentPage === 1;
+            // document.getElementById("nextBtn").disabled = currentPage >= totalPages;
 
             document.querySelectorAll(".editBtn").forEach(btn => {
 
                 btn.addEventListener("click", async function () {
                     const row = this.closest("tr");
-                     debugger;
                     currentEdit = { // ✅ FIX: keep existing values
                         MPN: this.dataset.mpn,
                         Title: row.children[1].innerText,
@@ -307,21 +522,51 @@
         }
     });
 
-    document.getElementById("prevBtn").addEventListener("click", () => {
-        if (currentPage > 1) {
-            currentPage--;
-            loadProducts();
-        }
-    });
+       // pagination
+       document.getElementById("prevBtn").addEventListener("click", () => {
+           if (currentPage > 1) {
+               currentPage--;
+               loadProducts();
+               document.getElementById("pgInput").value = currentPage;
+           }
+       });
 
-    document.getElementById("nextBtn").addEventListener("click", () => {
-        currentPage++;
-        loadProducts();
-    });
+       document.getElementById("nextBtn").addEventListener("click", () => {
+          if (currentPage < totalPage) {
+               currentPage++;
+               loadProducts();
+               document.getElementById("pgInput").value = currentPage;
+           }
+       });
+
+       const prevBtn = document.getElementById("prevBtn");
+
+       prevBtn.onmouseover = () => {
+           prevBtn.style.backgroundColor = "#0070cc";
+           prevBtn.style.borderColor = "#0070cc";
+       };
+
+       prevBtn.onmouseout = () => {
+           prevBtn.style.backgroundColor = "#0080ff";
+           prevBtn.style.borderColor = "#0080ff";
+       };
+
+       const nextBtn = document.getElementById("nextBtn");
+
+       nextBtn.onmouseover = () => {
+           nextBtn.style.backgroundColor = "#0070cc";
+           nextBtn.style.borderColor = "#0070cc";
+       };
+
+       nextBtn.onmouseout = () => {
+           nextBtn.style.backgroundColor = "#0080ff";
+           nextBtn.style.borderColor = "#0080ff";
+       };
 
     document.getElementById("pageSize").addEventListener("change", (e) => {
         pageSize = parseInt(e.target.value);
         currentPage = 1;
+        document.getElementById("pgInput").value = currentPage;
         loadProducts();
     });
 

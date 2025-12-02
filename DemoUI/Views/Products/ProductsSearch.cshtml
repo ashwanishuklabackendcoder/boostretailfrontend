@@ -1,18 +1,740 @@
 ﻿@{
     var token = Context.Session.GetString("JWToken");
+    ViewData["Title"] = "Products";
 }
+<style>
+    .stock-box {
+        min-width: 100px;
+        border: 1px solid #89b9ff;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 6px 0;
+        background: white;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
 
-<div class="section-title"><h4 class="m-0">Product Search</h4></div>
-<div class="breadcrumb-bar">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb m-0 bg-transparent">
-            <li class="breadcrumb-item"><a href="#">Product Search</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Save Sim Products</li>
-        </ol>
-    </nav>
+        .stock-box:hover {
+            background: #007bff;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .stock-box div:first-child {
+            font-size: 20px;
+            font-weight: 600;
+            transition: color 0.25s ease;
+        }
+
+        .stock-box div:last-child {
+            font-size: 12px;
+            color: #555;
+            transition: color 0.25s ease;
+        }
+
+        .stock-box:hover div:last-child {
+            color: #e8e8e8; /* softer white for subtitle */
+        }
+
+    .action-btn {
+        background-color: #0080ff;
+        color: white;
+        border-radius: 9999px;
+        padding: 8px 16px;
+        border: 1px solid #0080ff;
+        font-family: Inter, sans-serif;
+        font-weight: 900;
+        font-size: 9pt;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        /* Hover effect */
+        .action-btn:hover {
+            background-color: white;
+            color: #0080ff;
+            border-color: #0080ff;
+            transform: translateY(-2px);
+        }
+
+
+</style>
+
+<!-- Main Content Wrapper -->
+<div class="container-fluid p-0" style="width:100%; overflow-x:hidden;">
+
+    <!-- Page Top Products (Header area) -->
+    <div style="display: flex; flex-direction: column; align-items: center; align-self: stretch;">
+
+        <!-- Products Title Bar (under Page Top) -->
+        <div style="display: flex; height: 64px; justify-content: space-between; align-items: center;
+                    align-self: stretch; border-bottom: 1px solid var(--color-border-horizontal-lines, #DBDBDB);
+                    background: var(--color-background-main, #FFF);">
+
+            <!-- Left Products (Inside Page Title Bar) -->
+            <div style="display: flex; height: 64px; padding: 0 26px; align-items: center;">
+
+                <div style="display: flex; align-items: center;">
+                    <span style="color: var(--color-text-section-title, #000); font-family: Inter, sans-serif;
+                          font-size: 18px; font-style: normal; font-weight: 600;
+                          line-height: 24px; text-transform: uppercase;">
+                        Products
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- Right Section (Inside Page Title Bar) -->
+            <div style="display: flex; padding: 0 24px; justify-content: flex-end; align-items: center; gap: 14px;">
+
+                <div style="display: flex; align-items: center;">
+                    <span style="color: var(--color-text-section-title, #000); text-align: right;
+                          font-family: Inter, sans-serif; font-size: 15px; font-style: normal; font-weight: 500;
+                          line-height: 18px;">
+                        Advanced Mode
+                    </span>
+                </div>
+
+                <!-- Toggle Button Container -->
+                <div id="toggleContainer"
+                     style="user-select:none;display: flex; width: 42px; height: 22px; align-items: center; cursor: pointer;">
+
+                    <svg id="toggleSwitch" width="42" height="22" viewBox="0 0 42 22" style="cursor:pointer">
+
+                        <!-- Background (OFF default) -->
+                        <rect id="toggleBg"
+                              x="1" y="1"
+                              width="40" height="20"
+                              rx="10"
+                              fill="#BABABA"
+                              stroke="#BABABA"
+                              stroke-width="2"
+                              style="transition: fill 0.25s;" />
+
+                        <!-- Knob (RIGHT default) -->
+                        <rect id="toggleKnob"
+                              x="21"
+                              y="2"
+                              width="18" height="18"
+                              rx="9"
+                              fill="white"
+                              style="transition: all 0.25s;" />
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Breadcrumb Bar -->
+        <div style="display: flex; height: 50px; justify-content: space-between; align-items: center;
+            align-self: stretch; border-bottom: 1px solid var(--color-border-horizontal-lines, #DBDBDB);
+            background: var(--color-background-main, #FFF);">
+
+            <!-- Left Side: Breadcrumb Path -->
+            <div style="display: flex; padding: 0 26px; align-items: center; align-self: stretch;">
+                <!-- Breadcrumbs -->
+                <span style="font-family: Inter, sans-serif;font-size: 15px; font-style: normal; font-weight: 400;
+                             line-height: 20px; cursor:pointer; text-transform: capitalize; margin-right:5px">
+                    <a style="color: var(--color-text-breadcrumbs, #000); text-decoration:none;" href="#">
+                        Catalog Setup
+                    </a>
+                </span>
+
+                <span style="color: var(--color-text-breadcrumbs, #000); font-family: Inter, sans-serif;
+                            font-size: 15px; font-style: normal; font-weight: 400; line-height: 20px;
+                            text-transform: capitalize;">
+                    > Manage Products
+                </span>
+
+            </div>
+
+            <!-- Right Side:  -->
+            <div style="display: flex; padding: 0 24px; justify-content: flex-end; align-items: center;">
+                <span style="color: var(--color-text-breadcrumbs, #000); font-family: Inter, sans-serif;
+                            font-size: 15px; font-style: normal; font-weight: 400; line-height: 20px;
+                            text-transform: capitalize;">
+                    Total Products : <span id="totalProducts">500,000</span>
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Filter Section Search -->
+    <div style="display: flex; flex-direction: column; align-items: center; align-self: stretch;">
+
+        <div style="display: flex; height: 50px; justify-content: space-between; align-items: center;
+                align-self: stretch; background: var(--color-background-main, #FFF);">
+
+            <!-- Search Text -->
+            <div style="display: flex; height: 50px; padding: 0 26px; align-items: center;">
+                <span style="color: var(--color-text-section-title, #000);
+                             font-family: Inter, sans-serif;
+                             font-size: 18px;
+                             font-style: normal;
+                             font-weight: 600;
+                             line-height: 24px;">
+                    Search
+                </span>
+            </div>
+
+        </div>
+
+        <div style="margin-bottom:10px;display: flex; height: 50px; justify-content: flex-start; align-items: center;
+            align-self: stretch; background: var(--color-background-main, #FFF); padding: 0 26px; gap: 20px;">
+
+            <!-- Search Input -->
+            <input type="text" id="searchBox" class="form-control"
+                   placeholder="Enter Part Number / MPN / Barcode / Title "
+                   style="width: 400px;" />
+
+            <!-- SVG Icon -->
+            <div style="cursor: pointer; display: flex; align-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                     width="22" height="22">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                </svg>
+            </div>
+
+            <!-- EPOS -->
+            <div class="form-check" style="display: flex; align-items: center; gap: 10px; margin: 0; padding: 0;">
+                <input class="form-check-input" type="checkbox" id="epos"
+                       style="margin: 0; position: relative; top: 0;">
+                <label class="form-check-label" for="epos"
+                       style="margin: 0; line-height: 1; display: flex; align-items: center; font-size: 15px;
+                       font-family: Inter, sans-serif;">
+                    EPOS
+                </label>
+            </div>
+
+            <!-- SIM -->
+            <div class="form-check" style="display: flex; align-items: center; gap: 10px; margin: 0; padding: 0;">
+                <input class="form-check-input" type="checkbox" id="sim"
+                       style="margin: 0; position: relative; top: 0;">
+                <label class="form-check-label" for="sim"
+                       style="margin: 0; line-height: 1; display: flex; align-items: center; font-size: 15px;
+                       font-family: Inter, sans-serif;">
+                    SIM
+                </label>
+            </div>
+
+
+            <div style="margin-left: auto;">
+                <!-- THIS PUSHES RIGHT -->
+                <div style="display:flex; gap:10px;">
+
+                    <div class="stock-box">
+                        <div>56</div>
+                        <div>Our Stock</div>
+                    </div>
+
+                    <div class="stock-box">
+                        <div>5</div>
+                        <div>Supplier Stock</div>
+                    </div>
+
+                    <div class="stock-box">
+                        <div>12</div>
+                        <div>Back Order</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Filter Section Advanced Search -->
+    <div class="container-fluid mt-3" style="padding: 0 26px 0 24px; display:none;" id="filterSectionAdvancedSearch">
+        <div class="row g-3">
+
+            <!-- ================== ADVANCED SEARCH ================== -->
+            <div id="advancedSearch" class="col-xl-5 col-sm-12">
+                <div class="card shadow-sm border-0" style="height: 450px; background:#f7f7f7;">
+                    <div class="card-body">
+
+                        <div style="display: flex; height: 50px;align-items: center;">
+                            <span style="color: var(--color-text-section-title, #000);
+                             font-family: Inter, sans-serif;
+                             font-size: 18px;
+                             font-style: normal;
+                             font-weight: 600;
+                             line-height: 24px;">
+                                Advanced Search
+                            </span>
+                        </div>
+
+                        <!-- Condition Group -->
+                        <div class="filter-group p-3 mb-3 border rounded">
+
+                            <!-- AND/OR Toggles -->
+                            <div class="mb-3">
+                                <button class="btn btn-sm btn-primary rounded-pill me-2">AND</button>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill">OR</button>
+                                <button class="btn btn-sm btn-light border rounded-circle ms-3">+</button>
+                            </div>
+
+                            <!-- Condition Row -->
+                            <div class="condition-row d-flex align-items-center mb-2 gap-2">
+                                <select class="form-select">
+                                    <option>Category 1</option>
+                                    <option>Category 2</option>
+                                    <option>Brand</option>
+                                    <option>Model</option>
+                                </select>
+
+                                <select class="form-select">
+                                    <option>Equals</option>
+                                    <option>Contains</option>
+                                    <option>Starts With</option>
+                                    <option>Ends With</option>
+                                </select>
+
+                                <input type="text" class="form-control" placeholder="Value">
+
+                                <button class="btn btn-sm btn-light border rounded-circle">×</button>
+                            </div>
+
+                            <!-- Condition Row -->
+                            <div class="condition-row d-flex align-items-center mb-2 gap-2">
+                                <select class="form-select">
+                                    <option>Category 2</option>
+                                    <option>Category 3</option>
+                                    <option>Colour</option>
+                                </select>
+
+                                <select class="form-select">
+                                    <option>Contains</option>
+                                    <option>Equals</option>
+                                    <option>Starts With</option>
+                                </select>
+
+                                <input type="text" class="form-control" placeholder="Value">
+
+                                <button class="btn btn-sm btn-light border rounded-circle">×</button>
+                            </div>
+                        </div>
+
+                        <!-- Second Group -->
+                        <div class="filter-group p-3 border rounded">
+                            <div class="mb-3">
+                                <button class="btn btn-sm btn-primary rounded-pill me-2">AND</button>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill">OR</button>
+                                <button class="btn btn-sm btn-light border rounded-circle ms-3">+</button>
+                            </div>
+
+                            <div class="condition-row d-flex align-items-center gap-2">
+                                <select class="form-select">
+                                    <option>Price</option>
+                                    <option>Cost</option>
+                                    <option>Year</option>
+                                </select>
+
+                                <select class="form-select">
+                                    <option>>=</option>
+                                    <option><=</option>
+                                    <option>=</option>
+                                </select>
+
+                                <input type="text" class="form-control" placeholder="2500">
+
+                                <button class="btn btn-sm btn-light border rounded-circle">×</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================== DESCRIPTION ================== -->
+            <div id="description" class="col-xl-4 col-sm-7">
+                <div class="border rounded p-3 bg-light h-100">
+
+                    <div style="display: flex; height: 50px;align-items: center;" class="mb-3">
+                        <span style="color: var(--color-text-section-title, #000);
+                             font-family: Inter, sans-serif;
+                             font-size: 18px;
+                             font-style: normal;
+                             font-weight: 600;
+                             line-height: 24px;">
+                            Batch Edit
+                        </span>
+                    </div>
+
+                    <div class="row g-2 align-items-center mb-2">
+                        <div class="col-6">
+                            <input type="text" id="price" class="form-control" placeholder="Price">
+                        </div>
+                        <div class="col-4">
+                            <input type="text" id="password" class="form-control" placeholder="Enter Password">
+                        </div>
+                        <div class="col-2">
+                            <button id="applyBtn" style="background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 500; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease;">
+                                APPLY
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="row g-2 align-items-center mb-2">
+
+                        <!-- Checkbox + Label -->
+                        <div class="col-2">
+                            <div class="d-flex align-items-center" style="gap: 6px; margin:0; padding:0;">
+                                <input class="form-check-input" type="checkbox" id="costCheck" style="margin:0;" />
+
+                                <label for="costCheck"
+                                       style="margin:0; line-height:1; font-size:15px; font-family:Inter, sans-serif;">
+                                    Cost
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Input box -->
+                        <div class="col-4">
+                            <input type="text" id="costInput" class="form-control" placeholder="£10,000">
+                        </div>
+
+                    </div>
+
+                    <div class="row g-2 align-items-center mb-2">
+
+                        <!-- Checkbox + Label -->
+                        <div class="col-2">
+                            <div class="d-flex align-items-center" style="gap: 6px; margin:0; padding:0;">
+                                <input class="form-check-input" type="checkbox" id="rrpCheck" style="margin:0;" />
+
+                                <label for="rrpCheck"
+                                       style="margin:0; line-height:1; font-size:15px; font-family:Inter, sans-serif;">
+                                    Rrp
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Input box -->
+                        <div class="col-4">
+                            <input type="text" id="rrpInput" class="form-control" placeholder="£10,000">
+                        </div>
+
+                    </div>
+
+                    <div class="row g-2 align-items-center mb-2">
+
+                        <!-- Checkbox + Label -->
+                        <div class="col-2">
+                            <div class="d-flex align-items-center" style="gap: 6px; margin:0; padding:0;">
+                                <input class="form-check-input" type="checkbox" id="priceCheck" style="margin:0;" />
+
+                                <label for="priceCheck"
+                                       style="margin:0; line-height:1; font-size:15px; font-family:Inter, sans-serif;">
+                                    Price
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Input box -->
+                        <div class="col-4">
+                            <input type="text" id="priceInput" class="form-control" placeholder="£10,000">
+                        </div>
+
+                    </div>
+
+                    <div class="row g-2 align-items-center mb-2">
+
+                        <!-- Checkbox + Label -->
+                        <div class="col-2">
+                            <div class="d-flex align-items-center" style="gap: 6px; margin:0; padding:0;">
+                                <input class="form-check-input" type="checkbox" id="webCheck" style="margin:0;" />
+
+                                <label for="webCheck"
+                                       style="margin:0; line-height:1; font-size:15px; font-family:Inter, sans-serif;">
+                                    Web
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Input box -->
+                        <div class="col-4">
+                            <input type="text" id="webInput" class="form-control" placeholder="£10,000">
+                        </div>
+
+
+                        <div class="col-6">
+                            <div class="d-flex align-items-center" style="gap: 6px; margin:0; padding:0;">
+                                <input class="form-check-input" type="checkbox" id="webEndingCheck" style="margin:0;" />
+
+                                <label for="webEndingCheck"
+                                       style="margin:0; line-height:1; font-size:15px; font-family:Inter, sans-serif;">
+                                    Apply £0.99 Ending
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row g-2 align-items-center mb-2">
+
+                        <!-- Checkbox + Label -->
+                        <div class="col-2">
+                            <div class="d-flex align-items-center" style="gap: 6px; margin:0; padding:0;">
+                                <input class="form-check-input" type="checkbox" id="saleCheck" style="margin:0;" />
+
+                                <label for="saleCheck"
+                                       style="margin:0; line-height:1; font-size:15px; font-family:Inter, sans-serif;">
+                                    Sale
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Input box -->
+                        <div class="col-4">
+                            <input type="text" id="saleInput" class="form-control" placeholder="£10,000">
+                        </div>
+
+                        <div class="col-6">
+                            <input type="text" id="saleReasonInput" class="form-control" placeholder="Enter Sale Reason">
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================== Stok Location ================== -->
+            <div class="col-xl-3 col-sm-5">
+                <div class="border rounded bg-light p-3"
+                     style="height: 450px; display: flex; flex-direction: column;">
+
+                    <!-- Title -->
+                    <div style="display: flex; align-items: center; height: 50px; margin-bottom: 10px;">
+                        <span style="color: #000;
+                         font-family: Inter, sans-serif;
+                         font-size: 18px;
+                         font-weight: 600;">
+                            Stock Location
+                        </span>
+                    </div>
+
+                    <!-- Table container -->
+                    <div style="max-width: 100%; flex-grow: 1; overflow-y: auto;">
+
+                        <table class="table table-bordered table-sm text-center align-middle mb-0"
+                               style="table-layout: fixed; width: 100%; font-size: 13px;">
+
+                            <!-- Header -->
+                            <thead style="background: #007bff;">
+                                <tr>
+                                    <th style="color:white !important; width: calc(100%/7); padding: 6px;">LOC</th>
+                                    <th style="color:white !important; width: calc(100%/7); padding: 6px;">QTY</th>
+                                    <th style="color:white !important; width: calc(100%/7); padding: 6px;">MIN</th>
+                                    <th style="color:white !important; width: calc(100%/7); padding: 6px;">MAX</th>
+                                    <th style="color:white !important; width: calc(100%/7); padding: 6px;">BO</th>
+                                    <th style="color:white !important; width: calc(100%/7); padding: 6px;">SOLD</th>
+                                    <th style="color:white !important; width: calc(100%/7); padding: 6px;">LA</th>
+                                </tr>
+                            </thead>
+
+
+                            <!-- Body Rows -->
+                            <tbody>
+                                <tr><td>01</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                <tr><td>02</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                <tr><td>03</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                <tr><td>04</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                <tr><td>05</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                <tr><td>06</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                            </tbody>
+
+                            <!-- Footer -->
+                            <tfoot style="font-weight: bold;">
+                                <tr>
+                                    <td>Total</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                            </tfoot>
+
+                        </table>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- Settings Button -->
+    <div style="margin-top:15px; display: flex; height: 64px; justify-content: space-between; align-items: center;
+                    align-self: stretch; background: var(--color-background-main, #FFF); margin-bottom:10px;">
+
+        <!-- Left -->
+        <div class="d-flex align-items-center gap-3" style="padding: 0 24px;">
+
+          @*   <button id="prevBtn1" style="background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease;">
+                ◀ PREV
+            </button>
+
+            <span style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                Page
+            </span>
+
+            <input readonly id="pgInput1" style="width: 70px; padding: 8px 8px; font-family: Inter, sans-serif; font-size: 11pt;
+                                color: #555; text-align: center; border: 1px solid #dbdbdb; border-radius: 6px;
+                                outline: none;" value="1" />
+
+            <span id="pgTotal1" style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                of 1
+            </span>
+
+            <button id="nextBtn1" style=" background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; ">
+                NEXT ▶
+            </button> *@
+
+        </div>
+
+        <!-- Right-->
+        <div style="display: flex; padding: 0 24px; justify-content: flex-end; align-items: center; gap: 14px;position: relative;">
+
+            <div style="display: flex; align-items: center; gap: 10px; font-family: Inter, sans-serif; font-size: 13px; margin-right:10px;">
+                <label class="me-2">Results per Page:</label>
+                <select id="pageSize" class="form-select" style="width: 70px; height: 32px; font-size: 13px; padding: 2px 6px;">
+                    <option>25</option>
+                    <option>50</option>
+                    <option>100</option>
+                    <option>500</option>
+                </select>
+            </div>
+
+            <button onclick="toggleColumnsPopup()" id="toggleBtn"
+                    style=" background: #0080ff; color: white; border: 1px solid #0080ff; border-radius: 9999px;
+                 width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;font-family: Inter, sans-serif;
+                 font-weight: 700; font-size: 9pt; outline: none; box-shadow: none; cursor: pointer;
+                 transition: all 0.2s ease-in-out;"
+                    onmouseover="this.style.background='#0070cc'; this.style.borderColor='#0070cc';"
+                    onmouseout="this.style.background='#0080ff'; this.style.borderColor='#0080ff';">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor"
+                     style="width: 24px; height: 24px;">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+
+            <!-- Popup -->
+            <div id="columnsPopup" style=" display: none; position: absolute; right: 24px; top: 70px; z-index: 10000;
+                                background: #fff; border: 1px solid #dbdbdb;  border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                                padding: 12px; width: 280px; font-family: Inter, sans-serif; ">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="font-size: 14px; font-weight: 700; color: #555;">
+                        Show/Hide Columns
+                    </div>
+                    <button onclick="toggleColumnsPopup()"
+                            style="background: none; border: none; color: #555; font-size: 16px; cursor: pointer;">
+                        ×
+                    </button>
+                </div>
+
+                <!-- Filter -->
+                <input type="text" id="columnFilter" placeholder="Filter columns..."
+                       style="width: 100%; border: 1px solid #ddd; border-radius: 4px;
+                padding: 6px 8px; font-size: 13px; color: #333; margin-bottom: 10px; outline: none;" />
+
+
+                <!-- Checkbox container -->
+                <div id="columnCheckboxList"
+                     style="max-height: 300px; overflow-y: auto; padding-right: 6px;"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div style="width:100%; padding: 0 26px 0 24px; overflow-x:auto;">
+        <div id="productTable"></div>
+    </div>
+
+    <!-- 🔹 Pagination -->
+    <div class="d-flex align-items-center justify-content-between px-4 mb-3"
+         style="height: 50px; background: #fff; margin-top:20px;">
+
+        <!-- Center: Custom Pagination (Your Styled UI) -->
+        <div class="d-flex align-items-center gap-3">
+
+            <button id="prevBtn" style="background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease;">
+                ◀ PREV
+            </button>
+
+            <span style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                Page
+            </span>
+
+            <input readonly id="pgInput" style="width: 70px; padding: 8px 8px; font-family: Inter, sans-serif; font-size: 11pt;
+                                color: #555; text-align: center; border: 1px solid #dbdbdb; border-radius: 6px;
+                                outline: none;" value="1" />
+
+            <span id="pgTotal" style="font-family: Inter, sans-serif; font-weight: 400; font-size: 10pt;">
+                of 1
+            </span>
+
+            <button id="nextBtn" style=" background-color: #0080ff; color: white; border-radius: 9999px; padding: 8px 16px;
+                                 border: 1px solid #0080ff; font-family: Inter, sans-serif; font-weight: 700; font-size: 9pt;
+                                 cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; ">
+                NEXT ▶
+            </button>
+
+        </div>
+
+
+        <!-- Right Side (Empty but keeps even spacing like your layout) -->
+        <div class="d-flex align-items-center gap-1">
+            <button id="clearBtn" class="action-btn" onclick="ClearSelectedProducts()" style="display:none;">
+                ✖ Clear
+            </button>
+            <button id="saveBtn" class="action-btn" onclick="SaveSelectedProducts()" style="display:none;">
+                ✔ Save
+            </button>
+        </div>
+        
+    </div>
+
+
 </div>
 
-<div class="filter-section d-flex justify-content-between align-items-center">
+
+@* <div class="filter-section d-flex justify-content-between align-items-center">
     <div class="row mb-3">
         <div class="col">
             <label>Suppliers</label>
@@ -58,34 +780,106 @@
         </div>
     </div>
 </div>
-<div class="table-container scroll-table">
-    <table class="table table-striped" id="productTable">
-        <thead>
-            <tr>
-                <th><input type="checkbox" id="selectAll" /></th>
-                <th>MPN</th>
-                <th>Title</th>
-                <th>Brand</th>
-                <th>Category1</th>
-                <th>Category2</th>
-                <th>Category3</th>
-                <th>Colour</th>
-                <th>Size</th>
-                <th>Price</th>
 
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+<div class="table-container scroll-table">
+    <!-- Tabulator will render here -->
+    <div id="productTable"></div>
 </div>
+
 <div class="text-end mb-5">
     <button id="saveBtn" class="btn btn-success">Save Selected Products</button>
+</div> *@
+
+<!-- Filter Popup (reused from SIM page) -->
+<div id="filterPopup" style=" display: none; position:fixed; z-index:10000;background: #fff;
+                      border: 1px solid #dbdbdb;  border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                      padding: 12px; width: 220px; font-family: Inter, sans-serif; ">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="font-size: 14px; font-weight: 700; color: #555;">
+            Filter Mode
+        </div>
+        <button onclick="toggleFilterPopup()" style="background: none; border: none; color: #555; font-size: 16px; cursor: pointer;">
+            ×
+        </button>
+    </div>
+
+    <div id="filterOptions" style="display:flex; flex-direction:column; padding-right:6px; gap:4px;">
+
+        <button data-mode="like" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;">
+            <span>Contains</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="starts" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;">
+            <span>Starts With</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="equals" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;">
+            <span>Equals</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="ends" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;">
+            <span>Ends With</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="notlike" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;">
+            <span>Not Contain</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+        <button data-mode="notequals" onclick="selectFilterMode(this)"
+                style="width:100%; cursor:pointer; font-family:Inter,sans-serif;
+        font-weight:400; font-size:11pt; border:none; outline:none;
+        background:transparent; padding:8px; border-radius:6px;
+        display:flex; justify-content:space-between; align-items:center; color:#555;">
+            <span>Not Equals</span>
+            <span class="icon-box" style="width:16px;height:16px;"></span>
+        </button>
+
+    </div>
 </div>
+
+
+
 <script>
+
+
+    // APIs
     const categoriesApi = "https://simapi.runasp.net/api/Category/GetCategoryByParentId";
     const brandsBySupplierApi = "https://simapi.runasp.net/api/Catalogue/Brands";
     const productsApi = "https://simapi.runasp.net/api/Catalogue/SearchProducts";
-    const saveProductsApi = "https://simapi.runasp.net/api/Catalogue/SaveProducts"; // Your API endpoint
+    const saveProductsApi = "https://simapi.runasp.net/api/Catalogue/SaveProducts";
+    const apiUrl = "https://simapi.runasp.net/api/Catalogue/GetMasterProducts";
+
+    // Token from server-side Razor variable
+    const token = "@token"; // server rendered token string (or empty)
+
+        let currentPage = 1;
+    let totalPage = 1;
+    let pageSize = 25;
 
     // Static suppliers list
     const suppliers = [
@@ -99,23 +893,41 @@
         { id: 8, name: "Sportline" }
     ];
 
+    // Tabulator instance
+    let table;
+
+    // Current per-column filter mode map (used by header filter)
+    let headerFilterModes = {}; // { fieldName: "like" | "starts" | ... }
+
+    // initialize UI
+    async function init() {
+        populateStaticDropdowns();
+        await loadDropdowns();
+        initTabulator();
+        //attachEventHandlers();
+        searchProducts();
+        // console.log("products : ");
+    }
+
+    function populateStaticDropdowns() {
+        // const supplierDropdown = document.getElementById("supplierDropdown");
+        // suppliers.forEach(s => supplierDropdown.add(new Option(s.name, s.id)));
+
+        // const yearDropdown = document.getElementById("yearDropdown");
+        // const currentYear = new Date().getFullYear();
+        // for (let year = 2018; year <= currentYear; year++) {
+        //     yearDropdown.add(new Option(year, year));
+        // }
+    }
+
     async function loadDropdowns() {
-        const supplierDropdown = document.getElementById("supplierDropdown");
-        suppliers.forEach(s => supplierDropdown.add(new Option(s.name, s.id)));
-
-        const yearDropdown = document.getElementById("yearDropdown");
-        const currentYear = new Date().getFullYear();
-        for (let year = 2018; year <= currentYear; year++) {
-            yearDropdown.add(new Option(year, year));
-        }
-
-        try {
-            const categories = await fetch(categoriesApi).then(r => r.json());
-            const categoryDropdown = document.getElementById("categoryDropdown");
-            categories.forEach(c => categoryDropdown.add(new Option(c.name, c.id)));
-        } catch (err) {
-            console.error("Error loading categories:", err);
-        }
+        // try {
+        //     const categories = await fetch(categoriesApi).then(r => r.json());
+        //     const categoryDropdown = document.getElementById("categoryDropdown");
+        //     categories.forEach(c => categoryDropdown.add(new Option(c.name, c.id)));
+        // } catch (err) {
+        //     console.error("Error loading categories:", err);
+        // }
     }
 
     async function loadBrandsBySupplier(supplierId, year) {
@@ -145,118 +957,267 @@
         }
     }
 
-    async function searchProducts() {
-        const query = new URLSearchParams({
-            Supplier: document.getElementById("supplierDropdown").value,
-            BrandId: document.getElementById("brandDropdown").value,
-            CategoryId: document.getElementById("categoryDropdown").value,
-            Year: document.getElementById("yearDropdown").value,
-            MPN: document.getElementById("mpnInput").value,
-            Barcode: document.getElementById("barcodeInput").value,
-            Title: document.getElementById("titleInput").value
+    function initTabulator() {
+        // Column definitions
+        const columns = [
+            // {
+            //     title: "<input type='checkbox' id='selectAllHeader' />",
+            //     field: "select",
+            //     headerSort: false,
+            //     hozAlign: "center",
+            //     width: 60,
+            //     formatter: function(cell, formatterParams, onRendered) {
+            //         produce native checkbox that we will wire after data load
+            //         const mpn = cell.getRow().getData().mpn ?? "";
+            //         return `<input type="checkbox" class="selectProduct" data-mpn="${mpn}" />`;
+            //     },
+            //     headerFilter: false
+            // },
+            {
+                title: "MPN",
+                field: "mpn",
+                headerFilter: customHeaderFilter,
+                headerFilterFunc: myFilterFunc,
+                headerFilterParams: { mode: "like" }
+            },
+            {
+                title: "Title",
+                field: "title",
+                headerFilter: customHeaderFilter,
+                headerFilterFunc: myFilterFunc,
+                headerFilterParams: { mode: "like" }
+            },
+            { title: "Brand", field: "brand", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc },
+            { title: "Category1", field: "category1", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc },
+            { title: "Category2", field: "category2", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc },
+            { title: "Category3", field: "category3", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc },
+            { title: "Colour", field: "colour", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc },
+            { title: "Size", field: "size", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc },
+            { title: "Price", field: "price", hozAlign: "right", headerFilter: customHeaderFilter, headerFilterFunc: myFilterFunc }
+        ];
+
+        table = new Tabulator("#productTable", {
+            height: "600px",
+            layout: "fitColumns",
+            selectable: false, // we keep native checkboxes
+            data: [], // start empty
+            columns: columns,
+            tooltips: true,
+            placeholder: "No products found",
+            // when data is rendered, wire up checkbox events
+            // dataRendered: function(data) {
+            //     wireCheckboxes(); attach events to .selectProduct
+            //     update selectAllHeader state to unchecked
+            //     const headerCb = document.getElementById("selectAllHeader");
+            //     if (headerCb) headerCb.checked = false;
+            // }
+                            headerSortElement: `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                aria-hidden="true" class="text-[#d1d1d1]"
+                style="width:22px;height:22px;">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18"/>
+                </svg>`,
         });
 
-        try {
-            const products = await fetch(`${productsApi}?${query}`).then(r => r.json());
-            const tbody = document.querySelector("#productTable tbody");
-            tbody.innerHTML = "";
+        const toggleBtn = document.getElementById("toggleBtn");
 
-            products.forEach((p, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><input type="checkbox" class="selectProduct" data-mpn="${p.mpn}" /></td>
-                        <td>${p.mpn}</td>
-                        <td>${p.title}</td>
-                        <td>${p.brand}</td>
-                        <td>${p.category1}</td>
-                        <td>${p.category2}</td>
-                        <td>${p.category3}</td>
-                        <td>${p.colour}</td>
-                        <td>${p.size}</td>
-                        <td>${p.price}</td>
-                    </tr>
-                `;
+        const columnMenu = document.getElementById("columnsPopup");
+        const list = document.getElementById("columnCheckboxList");
+
+
+            // 🔹 Build checkboxes AFTER Tabulator fully loads
+            table.on("tableBuilt", function () {
+
+                list.innerHTML = "";
+
+                table.getColumns().forEach(col => {
+
+                    const def = col.getDefinition();
+                    if (!def.title) return;
+
+                    // Wrapper for label + checkbox (your design)
+                    const wrapper = document.createElement("label");
+                    wrapper.style.cssText = ` display: flex; align-items: center; gap: 8px; padding: 4px 0; `;
+
+                    // Checkbox
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.classList.add("column-visibility-checkbox");   // <<< ADD THIS
+                    checkbox.checked = col.isVisible();
+                    checkbox.style.cssText = ` width: 16px; height: 16px; accent-color: #0080ff; cursor: pointer; `;
+                    checkbox.addEventListener("change", () => col.toggle());
+
+                    // Label text
+                    const span = document.createElement("span");
+                    span.textContent = def.title;
+                    span.style.cssText = ` font-size: 12pt; color: #555; cursor: pointer; `;
+
+                    wrapper.appendChild(checkbox);
+                    wrapper.appendChild(span);
+                    list.appendChild(wrapper);
+
+                });
+
             });
+
+            // 🔹 Close dropdown when clicking outside
+            document.addEventListener("click", (e) => {
+                if (!columnMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    columnMenu.style.display = "none";
+                    clearColumnFilter();
+                    resetAllColumnCheckboxes();
+                }
+            });
+
+            // live filtering (show only matching checkboxes)
+            document.getElementById("columnFilter").addEventListener("input", function() {
+                const search = this.value.toLowerCase();
+                const items = document.querySelectorAll("#columnCheckboxList label");
+                items.forEach(label => {
+                    const text = label.textContent.toLowerCase();
+                    label.style.display = text.includes(search) ? "flex" : "none";
+                });
+            });
+
+         // prevent row selection toggle when double clicking
+         table.on("rowClick", function (e, row) {
+             if (!row.isSelected())
+             {
+                 row.select();
+             }
+             else
+             {
+                 row.deselect();
+             }
+
+             const selected = table.getSelectedRows().length;
+
+             if (selected > 0) 
+             {
+                 document.getElementById("clearBtn").style.display = "block";
+                 document.getElementById("saveBtn").style.display = "block";
+             } 
+             else {
+                 document.getElementById("clearBtn").style.display = "none";
+                 document.getElementById("saveBtn").style.display = "none";
+             }
+         });
+
+
+
+    }
+
+    function wireCheckboxes() {
+        // Remove previous listeners (simple approach: clone node)
+        document.querySelectorAll("#productTable .selectProduct").forEach(cb => {
+            const newCb = cb.cloneNode(true);
+            cb.parentNode.replaceChild(newCb, cb);
+        });
+
+        // Attach change listeners
+        document.querySelectorAll("#productTable .selectProduct").forEach(cb => {
+            cb.addEventListener("change", function () {
+                // if any unchecked → uncheck selectAllHeader
+                const headerCb = document.getElementById("selectAllHeader");
+                const all = document.querySelectorAll("#productTable .selectProduct");
+                const checked = document.querySelectorAll("#productTable .selectProduct:checked");
+                if (headerCb) headerCb.checked = (all.length > 0 && checked.length === all.length);
+            });
+        });
+
+        // Hook into the header select-all (the one rendered inside Tabulator header)
+        const headerAll = document.getElementById("selectAllHeader");
+        if (headerAll) {
+            headerAll.addEventListener("change", function () {
+                const checked = this.checked;
+                document.querySelectorAll("#productTable .selectProduct").forEach(cb => cb.checked = checked);
+            });
+        }
+    }
+       
+    // Search and load products into Tabulator
+    async function searchProducts() {
+        
+        const query = new URLSearchParams({
+            // Supplier: document.getElementById("supplierDropdown").value,
+            // BrandId: document.getElementById("brandDropdown").value,
+            // CategoryId: document.getElementById("categoryDropdown").value,
+            // Year: document.getElementById("yearDropdown").value,
+            // MPN: document.getElementById("mpnInput").value,
+            // Barcode: document.getElementById("barcodeInput").value,
+            // Title: document.getElementById("titleInput").value
+        });
+
+        const filter = {
+            // SearchTerm: document.getElementById("searchBox").value || "",
+            // Categorized: document.getElementById("categorized").checked ? true :
+            //              document.getElementById("uncategorized").checked ? false : null,
+            // SingleResultPerModel: document.getElementById("singleResult").checked,
+            PageNumber: currentPage,
+            PageSize: pageSize
+        };
+
+        try {
+            // const products = await fetch(`${productsApi}?${query}`, {
+            //     headers: {
+            //         "Authorization": token ? `Bearer ${token.replace(/"/g, '')}` : ""
+            //     }
+            // }).then(r => r.json());
+
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(filter)
+            });
+
+
+            if (!response.ok) throw new Error("Failed to fetch products.");
+
+            const data = await response.json();
+            const products = data.items || [];
+            const totalCount = data.totalCount || 0;
+            const totalPages = Math.ceil(totalCount / pageSize);
+
+            // Make sure to pass an array (Tabulator requires array)
+            //const rows = Array.isArray(products) ? products : (products.items || []);
+            const rows = products;
+            table.replaceData(rows);
+
+            // Update UI
+            document.getElementById("pgTotal").textContent = `of ${totalPages}`;
+            totalPage = totalPages;
+            document.getElementById("totalProducts").textContent = `${totalCount}`;
+
         } catch (err) {
             console.error("Error loading products:", err);
         }
     }
 
-    // Select all checkbox
-    document.getElementById("selectAll").addEventListener("change", function () {
-        document.querySelectorAll(".selectProduct").forEach(cb => cb.checked = this.checked);
-    });
-
-       // Save selected products
-        // document.getElementById("saveBtn").addEventListener("click", async function () {
-        //     const selectedMPNs = Array.from(document.querySelectorAll(".selectProduct:checked"))
-        //         .map(cb => cb.dataset.mpn);
-
-        //     if (selectedMPNs.length === 0) {
-        //         alert("Please select at least one product.");
-        //         return;
-        //     }
-
-        //     try {
-        //         const response = await fetch(saveProductsApi, {
-        //             method: "POST",
-        //             headers: { "Content-Type": "application/json" },
-        //             body: JSON.stringify(selectedMPNs)
-        //         });
-
-        //         if (response.ok) {
-        //             alert("Selected products saved successfully!");
-        //         } else {
-        //             const err = await response.text();
-        //             alert("Error saving products: " + err);
-        //         }
-        //     } catch (err) {
-        //         console.error("Save products error:", err);
-        //         alert("An error occurred while saving products.");
-        //     }
-        // });
-        // document.getElementById("saveBtn").addEventListener("click", async function () {
-        //     debugger;
-        //     const selectedProducts = Array.from(document.querySelectorAll(".selectProduct:checked")).map(cb => {
-        //         const row = cb.closest("tr");
-        //         return {
-        //             MPN: cb.dataset.mpn,
-        //             ProductPrice: parseFloat(row.children[9].innerText), // Price column index
-        //             PShortDes: row.children[2].innerText // Use title as short description
-        //         };
-        //     });
-
-        //     if (selectedProducts.length === 0) {
-        //         alert("Please select at least one product.");
-        //         return;
-        //     }
-
-        //     try {
-        //             const token = localStorage.getItem("JWToken");
-        //             const response = await fetch(saveProductsApi, {
-        //             method: "POST",
-        //             headers: { "Content-Type": "application/json","Authorization": `Bearer ${token}` },
-        //             body: JSON.stringify(selectedProducts)
-        //         });
-
-        //         const result = await response.json();
-        //         alert(result.message);
-        //     } catch (err) {
-        //         console.error("Error saving products:", err);
-        //         alert("An error occurred while saving products.");
-        //     }
-        // });
-
-    // Event listeners
-
-       document.getElementById("saveBtn").addEventListener("click", async function () {
-        debugger;
-        const selectedProducts = Array.from(document.querySelectorAll(".selectProduct:checked")).map(cb => {
-            const row = cb.closest("tr");
+    
+    // Save selected products (reads native checkboxes inside Tabulator cells)
+    async function saveSelectedProducts() {
+        
+        const selectedProducts = Array.from(document.querySelectorAll("#productTable .selectProduct:checked")).map(cb => {
+            const row = cb.closest(".tabulator-row");
+            // Tabulator row children mapping: find visible cells and their values
+            // Simpler: read cells by querying text content near checkbox; we know column order
+            // But best to get Tabulator row data using the row's DOM attribute
+            let mpn = cb.dataset.mpn;
+            // attempt to find price and title from sibling cells in the row DOM
+            // Tabulator cell DOM structure: .tabulator-row > .tabulator-cell
+            const cells = row ? Array.from(row.querySelectorAll(".tabulator-cell")) : [];
+            // cell index 0 was checkbox, so price likely at last cell index
+            const titleCell = cells[2] ? cells[2].textContent.trim() : "";
+            const priceCell = cells[cells.length - 1] ? cells[cells.length - 1].textContent.trim() : "0";
             return {
-                MPN: cb.dataset.mpn,                    // Match DTO casing exactly
-                ProductPrice: parseFloat(row.children[9].innerText),
-                PShortDes: row.children[2].innerText
+                MPN: mpn,
+                ProductPrice: parseFloat(priceCell) || 0,
+                PShortDes: titleCell
             };
         });
 
@@ -266,14 +1227,13 @@
         }
 
         try {
-            const token = "@token";
             const response = await fetch(saveProductsApi, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": token ? `Bearer ${token.replace(/"/g, '')}` : ""
                 },
-                body: JSON.stringify(selectedProducts) // ✅ send array only
+                body: JSON.stringify(selectedProducts)
             });
 
             const result = await response.json();
@@ -287,20 +1247,361 @@
             console.error("Error saving products:", err);
             alert("An error occurred while saving products.");
         }
-    });
-    document.getElementById("searchBtn").addEventListener("click", searchProducts);
-    document.getElementById("supplierDropdown").addEventListener("change", function () {
-        const supplierId = this.value;
-        const year = document.getElementById("yearDropdown").value;
-        loadBrandsBySupplier(supplierId, year);
-    });
-    document.getElementById("yearDropdown").addEventListener("change", function () {
-        const year = this.value;
-        const supplierId = document.getElementById("supplierDropdown").value;
-        loadBrandsBySupplier(supplierId, year);
+    }
+
+    async function SaveSelectedProducts() {
+
+        const selectedProducts = table.getSelectedData().map(p => ({
+            MPN: p.mpn || p.MPN,
+            ProductPrice: parseFloat(p.price || p.ProductPrice || 0),
+            PShortDes: p.title || p.PShortDes || ""
+        }));
+
+        if (selectedProducts.length === 0) {
+            alert("Please select at least one product.");
+            return;
+        }
+
+        try {
+            const response = await fetch(saveProductsApi, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": token ? `Bearer ${token.replace(/"/g, '')}` : ""
+                },
+                body: JSON.stringify(selectedProducts)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message || "Products saved successfully!");
+                ClearSelectedProducts();
+            } else {
+                alert("Error saving products: " + JSON.stringify(result));
+            }
+
+        } catch (err) {
+            console.error("Error saving products:", err);
+            alert("An error occurred while saving products.");
+        }
+    }
+
+    function ClearSelectedProducts(){
+        table.deselectRow();
+                         document.getElementById("clearBtn").style.display = "none";
+                 document.getElementById("saveBtn").style.display = "none";
+    }
+
+
+    const numericFields = ["price", "cost"]; // add field names that should use numeric filter
+
+
+    // pagination
+    document.getElementById("prevBtn").addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
+            searchProducts();
+            document.getElementById("pgInput").value = currentPage;
+        }
     });
 
-    loadDropdowns();
+    document.getElementById("nextBtn").addEventListener("click", () => {
+       if (currentPage < totalPage) {
+            currentPage++;
+            searchProducts();
+            document.getElementById("pgInput").value = currentPage;
+        }
+    });
+
+    const prevBtn = document.getElementById("prevBtn");
+
+    prevBtn.onmouseover = () => {
+        prevBtn.style.backgroundColor = "#0070cc";
+        prevBtn.style.borderColor = "#0070cc";
+    };
+
+    prevBtn.onmouseout = () => {
+        prevBtn.style.backgroundColor = "#0080ff";
+        prevBtn.style.borderColor = "#0080ff";
+    };
+
+    const nextBtn = document.getElementById("nextBtn");
+
+    nextBtn.onmouseover = () => {
+        nextBtn.style.backgroundColor = "#0070cc";
+        nextBtn.style.borderColor = "#0070cc";
+    };
+
+    nextBtn.onmouseout = () => {
+        nextBtn.style.backgroundColor = "#0080ff";
+        nextBtn.style.borderColor = "#0080ff";
+    };
+
+    document.getElementById("pageSize").addEventListener("change", (e) => {
+        pageSize = parseInt(e.target.value);
+        currentPage = 1;
+        document.getElementById("pgInput").value = currentPage;
+        searchProducts();
+    });
+
+    // settingtoggle
+    function toggleColumnsPopup() {
+        const popup = document.getElementById("columnsPopup");
+        popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
+        clearColumnFilter();
+        resetAllColumnCheckboxes();
+    }
+
+    function clearColumnFilter() {
+        const filterInput = document.getElementById("columnFilter");
+        filterInput.value = ""; // clear search text
+
+        // show all checkboxes again
+        document.querySelectorAll("#columnCheckboxList label").forEach(label => {
+            label.style.display = "flex";
+        });
+    }
+
+    function resetAllColumnCheckboxes() {
+        // Show all columns in Tabulator
+        table.getColumns().forEach(col => col.show());
+
+        // Re-check all checkboxes in your column menu
+        setTimeout(() => {
+            const checkboxes = document.querySelectorAll(".column-visibility-checkbox");
+            checkboxes.forEach(cb => cb.checked = true);
+        }, 0);
+
+    }
+
+
+    // -------------------
+    // Custom header filter UI (adapted from your SIM page)
+    // -------------------
+    function customHeaderFilter(cell, onRendered, success, cancel) {
+        let wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.alignItems = "center";
+        wrapper.style.width = "100%";
+        wrapper.style.marginTop = "5px";
+
+        let input = document.createElement("input");
+        input.className = "border border-[#dbdbdb] rounded-md px-2 py-2 h-5";
+        input.style.minWidth = "0";
+        input.style.flex = "1 1 100%";
+        input.style.fontFamily = "Inter, sans-serif";
+        input.style.fontSize = "11pt";
+        input.style.color = "#555";
+
+        input.addEventListener("keyup", () => {
+            success(input.value);
+        });
+
+        let span = document.createElement("span");
+        span.className = "cursor-pointer";
+        span.style.outline = "none";
+        span.style.flexShrink = "0";
+
+        let btn = document.createElement("button");
+        btn.style.marginLeft = "3px";
+        btn.style.height = "30px";
+        btn.style.width = "28px";
+        btn.style.cursor = "pointer";
+        btn.style.userSelect = "none";
+        btn.style.border = "none";
+        btn.style.background = "transparent";
+        btn.style.flexShrink = "0";
+
+        btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="text-[#9c9c9c]"
+            style="width:22px; height:22px; color:#DBDBDB">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+        </svg>
+        `;
+
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            showFilterPopup(e, cell, success);
+        });
+
+        span.appendChild(btn);
+        wrapper.appendChild(input);
+        wrapper.appendChild(span);
+
+        return wrapper;
+    }
+
+    function showFilterPopup(e, cell, success) {
+        const popup = document.getElementById("filterPopup");
+        const column = cell.getColumn();
+        const colIndex = table.getColumns().indexOf(column);
+        const totalCols = table.getColumns().length;
+
+        let left = e.clientX;
+        let top = e.clientY;
+        const popupWidth = popup.offsetWidth || 220;
+
+        if (colIndex >= totalCols - 3) {
+            left = e.clientX - popupWidth - 10;
+        }
+
+        popup.style.left = left + "px";
+        popup.style.top = top + "px";
+        popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
+
+        // store the success callback and the column field for when user selects mode
+        popup._filterCallback = success;
+        popup._columnField = column.getField();
+
+        setTimeout(() => {
+            window.onclick = function (evt) {
+                if (!popup.contains(evt.target)) {
+                    popup.style.display = "none";
+                    window.onclick = null;
+                }
+            };
+        }, 50);
+    }
+
+    function selectFilterMode(btn) {
+        // reset
+        document.querySelectorAll('#filterOptions button').forEach(b => {
+            b.dataset.selected = "";
+            b.style.background = "transparent";
+            b.style.color = "#555";
+            b.querySelector('.icon-box').innerHTML = "";
+        });
+
+        btn.dataset.selected = "true";
+        btn.style.background = "#0080ff";
+        btn.style.color = "#fff";
+        btn.querySelector('.icon-box').innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" fill="none"
+                 style="width:16px;height:16px;color:white;">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+        `;
+
+        const popup = document.getElementById("filterPopup");
+        const mode = btn.getAttribute("data-mode");
+        const success = popup._filterCallback;
+        const colField = popup._columnField;
+
+        // store mode for this column (so headerFilterFunc can use it)
+        headerFilterModes[colField] = mode;
+
+        // call the header filter success with the current input value in the header
+        if (typeof success === "function") {
+            // find the header input value for this column
+            const headerInput = document.querySelector(`div.tabulator-header .tabulator-col[tabulator-field="${colField}"] input`);
+            const value = headerInput ? headerInput.value : "";
+            // call callback with value (it will trigger headerFilterFunc)
+            success(value);
+        }
+
+        popup.style.display = "none";
+    }
+
+    function myFilterFunc(headerValue, rowValue, rowData, params) {
+
+        if (!headerValue) return true;
+        headerValue = (headerValue + "").toLowerCase();
+        rowValue = (rowValue + "").toLowerCase();
+
+        const mode = headerFilterModes[params.mode] || "like";
+        console.log("mode : ",mode);
+
+        switch (mode) {
+            case "like":      return rowValue.includes(headerValue);
+            case "starts":    return rowValue.startsWith(headerValue);
+            case "equals":    return rowValue === headerValue;
+            case "ends":      return rowValue.endsWith(headerValue);
+            case "notlike":   return !rowValue.includes(headerValue);
+            case "notequals": return rowValue !== headerValue;
+            default:          return true;
+        }
+    }
+
+    function toggleFilterPopup() {
+        const popup = document.getElementById("filterPopup");
+        popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
+    }
+
+
+
+    // -------------------
+    // Event wiring
+    // -------------------
+    function attachEventHandlers() {
+        // document.getElementById("searchBtn").addEventListener("click", searchProducts);
+
+        // document.getElementById("supplierDropdown").addEventListener("change", function () {
+        //     const supplierId = this.value;
+        //     const year = document.getElementById("yearDropdown").value;
+        //     loadBrandsBySupplier(supplierId, year);
+        // });
+
+        // document.getElementById("yearDropdown").addEventListener("change", function () {
+        //     const year = this.value;
+        //     const supplierId = document.getElementById("supplierDropdown").value;
+        //     loadBrandsBySupplier(supplierId, year);
+        // });
+
+        //document.getElementById("saveBtn").addEventListener("click", saveSelectedProducts);
+    }
+
+
+
+
+
+
+    const bg = document.getElementById("toggleBg");
+    const knob = document.getElementById("toggleKnob");
+    const toggle = document.getElementById("toggleSwitch");
+
+    toggle.addEventListener("click", () => {
+
+        const isOff = knob.getAttribute("x") === "21"; // knob right = OFF
+
+        const advancedSearch = document.getElementById("filterSectionAdvancedSearch");
+
+        if (isOff) {
+            // Turn ON → knob left, bg blue
+            knob.setAttribute("x", "1");
+            bg.setAttribute("fill", "#0080FF");
+            bg.setAttribute("stroke", "#0080FF");
+
+            advancedSearch.style.display = "block";
+
+        } else {
+
+            // Turn OFF → knob right, bg grey
+            knob.setAttribute("x", "21");
+            bg.setAttribute("fill", "#BABABA");
+            bg.setAttribute("stroke", "#BABABA");
+
+            advancedSearch.style.display = "none";
+
+        }
+    });
+
+
+
+
+
+    // Initialize page
+    document.addEventListener("DOMContentLoaded", () => {
+        init();
+    });
+
+
+
+
 </script>
-
-
